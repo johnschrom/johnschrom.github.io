@@ -2,7 +2,7 @@
 layout: page
 permalink: /research/
 title: Research
-description: Below are research papers I have been involved in, arranged in reverse chronological order.
+description: Below are research products, including journal articles, oral presentations, and poster presentations, that I have been involved with, arranged in reverse chronological order. All items listed here were either peer reviewed or invited works. Use the search box below to filter articles by type (article, oral, poster), co-author, title, or abstract.
 nav: true
 nav_order: 2
 ---

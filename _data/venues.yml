@@ -1,9 +1,10 @@
-"AJP":
-  url: https://aapt.scitation.org/journal/ajp
+"oral":
+  color: "#009f06"
+
+"poster":
   color: "#00369f"
 
-"PhysRev":
-  url: https://journals.aps.org/
+"article":
+  color: "#b71c1c"
 
-"Vision":
-  color: "#009f36"
+
