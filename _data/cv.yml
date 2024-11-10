@@ -1,0 +1,58 @@
+- title: General Information
+  type: map
+  contents:
+    - name: Full Name
+      value: John Schrom
+
+- title: Education
+  type: time_table
+  contents:
+    - title: MPH, Epidemiology
+      institution: University of Illinois, Chicago
+    - title: BS, Chemistry and Biology
+      institution: University of Minnesota, Twin Cities
+
+- title: Experience
+  type: time_table
+  contents:
+    - title: Senior Data Specialist
+      institution: University of California-San Francisco
+      year: 2021-
+      description:
+        - Develop systems to support the collection, validation, and analysis of data for international research project.
+        - Design and execute statistical analysis for publications.
+    
+    - title: Staff Data Scientist / Senior Machine Learning Engineer
+      institution: One Medical
+      year: 2017-2021
+      description:
+        - Developed standards-based population health infrastructure.
+        - Built machine learning models to deploy interventions to improve health outcomes.
+        - Designed, executed, and published evaluations of clinical and technological programs.
+        - Founded research mentorship program, and initiated company's patent process.
+
+- title: Honors and Awards
+  type: time_table
+  contents:
+    - year: 2020
+      items:
+        - Fellow of the American Medical Informatics Association (FAMIA)
+    - year: 2019
+      items:
+        - People's Choice Award, One Medical Hackathon
+    - year: 2018
+      items:
+        - Most Geektastic Award, One Medical Hackathon
+
+- title: Academic Interests
+  type: nested_list
+  contents:
+    - title: Machine Learning
+      items:
+        - Fairness and algorithmic transparency
+        - Application in healthcare and biology
+        - ML-Human interaction
+    - title: Technology in Healthcare
+      items:
+        - Health tech standards (e.g., FHIR)
+        - Population health
