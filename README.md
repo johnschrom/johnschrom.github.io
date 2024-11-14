@@ -1,3 +1,3 @@
 # johnschrom.github.io
 
-Just my personal homepage. Check it out at: johnschrom.com.
+This repo is based on [alshedivat/al-folio](https://github.com/alshedivat/al-folio) but with some customization and content to make it more personal. This website is viewable at [johnschrom.com](https://johnschrom.com)!
