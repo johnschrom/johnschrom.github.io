@@ -2,11 +2,11 @@
 layout: page
 title: Portfolio
 permalink: /portfolio/
-description: A growing collection of your cool projects.
-nav: false
+description: Below are details on a few of the larger projects I've worked on.
 nav_order: 2
 display_categories: [work, fun]
-horizontal: false
+horizontal: true
+nav: false
 ---
 
 <div class="projects">
@@ -14,7 +14,7 @@ horizontal: false
 
 {% if page.horizontal %}
   <div class="container">
-    <div class="row row-cols-1 row-cols-md-2">
+    <div class="row row-cols-1 row-cols-md-12">
     {% for project in sorted_projects %}
       {% include projects_horizontal.liquid %}
     {% endfor %}

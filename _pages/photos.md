@@ -3,7 +3,7 @@ layout: page
 permalink: /photos/
 title: Photos
 description: Whether you are an old friend or colleague checking in, or a future one I haven't met yet, here's some photos of things I've been up to lately in my non-work life. Hover over for more info, and always feel welcomed to reach out to say hi.
-nav: true
+nav: false
 nav_order: 3
 enable_masonry: true
 ---
