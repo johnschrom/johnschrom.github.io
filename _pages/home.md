@@ -20,4 +20,4 @@ I'm an epidemiologist and data scientist, currently working on infectious diseas
 
 Prior to UCSF, I worked as a machine learning engineer at One Medical, where I primarily focused on using data and technology to improve population health. I have also worked with other health tech companies, like Practice Fusion and Rock Health.
 
-You can learn more about my background on the [research](/research) page. I'm also always happy to connect (or re-connect) — you can reach me via email ([john@schrom.org](mailto:john@schrom.org)) or text (415-758-3232).
+You can learn more about my background on the [research](/research) page or from my [resume](/assets/pdf/resume.pdf). I'm also always happy to connect (or re-connect) — you can reach me via email ([john@schrom.org](mailto:john@schrom.org)) or text (415-758-3232).
