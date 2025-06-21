@@ -13,6 +13,7 @@ on:
       - "**.liquid"
       - "**/*.md"
       - "**.yml"
+      - "_plugins/**"
       - "Gemfile"
       - "Gemfile.lock"
       - "!.github/workflows/axe.yml"
@@ -40,6 +41,7 @@ on:
       - "**.liquid"
       - "**/*.md"
       - "**.yml"
+      - "_plugins/**"
       - "Gemfile"
       - "Gemfile.lock"
       - "!.github/workflows/axe.yml"
@@ -83,7 +85,15 @@ jobs:
         run: |
           pip3 install --upgrade jupyter
           export JEKYLL_ENV=production
-          bundle exec jekyll build
+          export GITHUB_ACTIONS=true
+          bundle exec jekyll build --verbose
+      - name: Debug - Show PDF plugin results 🔍
+        run: |
+          echo "=== PDF plugin generated files ==="
+          ls -la _pages/papers/ 2>/dev/null || echo "No _pages/papers directory found"
+          echo "=== Papers in built site ==="
+          find _site -path "*/papers/*" -name "*.html" | head -10 || echo "No papers found in _site"
+          echo "=== Build completed ==="
       - name: Purge unused CSS 🧹
         run: |
           npm install -g purgecss
