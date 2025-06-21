@@ -1,0 +1,10 @@
+{% comment %}
+Helper to generate clean PDF viewer links
+Usage: {% include pdf_link_helper.liquid pdf_path=entry.pdf title=entry.title type="pdf" %}
+{% endcomment %}
+
+{% assign pdf_filename = include.pdf_path | split: '/' | last | replace: '.pdf', '' %}
+{% assign clean_slug = pdf_filename | replace: '_', '-' | downcase %}
+{% assign link_url = '/papers/' | append: clean_slug | append: '/' %}
+
+<a href="{{ link_url }}" class="btn btn-sm z-depth-0" role="button">{{ include.type | default: "PDF" | capitalize }}</a>

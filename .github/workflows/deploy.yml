@@ -81,6 +81,9 @@ jobs:
           valueFile: "_config.yml"
           propertyPath: "giscus.repo"
           value: ${{ github.repository }}
+      - name: Generate PDF pages 📄
+        run: |
+          ruby _scripts/generate_pdf_pages_improved.rb
       - name: Install and Build 🔧
         run: |
           pip3 install --upgrade jupyter
