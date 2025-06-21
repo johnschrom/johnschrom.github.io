@@ -1,3 +1,4 @@
 .DS_Store
 .pdf_pages_cache
 _pages/papers/*
+_site/
