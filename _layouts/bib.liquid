@@ -212,7 +212,9 @@
         {% if entry.pdf contains '://' %}
           <a href="{{ entry.pdf }}" class="btn btn-sm z-depth-0" role="button">PDF</a>
         {% else %}
-          <a href="{{ entry.pdf | prepend: '/assets/pdf/' | relative_url }}" class="btn btn-sm z-depth-0" role="button">PDF</a>
+          {% assign pdf_filename = entry.pdf | split: '/' | last | replace: '.pdf', '' %}
+          {% assign clean_slug = pdf_filename | replace: '_', '-' | downcase %}
+          <a href="/papers/{{ clean_slug }}/" class="btn btn-sm z-depth-0" role="button">PDF</a>
         {% endif %}
       {% endif %}
       {% if entry.supp %}
@@ -237,14 +239,18 @@
         {% if entry.poster contains '://' %}
           <a href="{{ entry.poster }}" class="btn btn-sm z-depth-0" role="button">Poster</a>
         {% else %}
-          <a href="{{ entry.poster | prepend: '/assets/pdf/' | relative_url }}" class="btn btn-sm z-depth-0" role="button">Poster</a>
+          {% assign poster_filename = entry.poster | split: '/' | last | replace: '.pdf', '' %}
+          {% assign clean_slug = poster_filename | replace: '_', '-' | downcase %}
+          <a href="/papers/{{ clean_slug }}/" class="btn btn-sm z-depth-0" role="button">Poster</a>
         {% endif %}
       {% endif %}
       {% if entry.slides %}
         {% if entry.slides contains '://' %}
           <a href="{{ entry.slides }}" class="btn btn-sm z-depth-0" role="button">Slides</a>
         {% else %}
-          <a href="{{ entry.slides | prepend: '/assets/pdf/' | relative_url }}" class="btn btn-sm z-depth-0" role="button">Slides</a>
+          {% assign slides_filename = entry.slides | split: '/' | last | replace: '.pdf', '' %}
+          {% assign clean_slug = slides_filename | replace: '_', '-' | downcase %}
+          <a href="/papers/{{ clean_slug }}/" class="btn btn-sm z-depth-0" role="button">Slides</a>
         {% endif %}
       {% endif %}
       {% if entry.website %}

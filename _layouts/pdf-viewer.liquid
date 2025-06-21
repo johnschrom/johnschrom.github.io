@@ -1,0 +1,256 @@
+---
+layout: default
+---
+
+<style>
+.pdf-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 200px);
+  min-height: 600px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.pdf-header {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pdf-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.pdf-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pdf-button {
+  background: var(--global-theme-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.pdf-button:hover {
+  background: var(--global-hover-color);
+  color: white;
+  text-decoration: none;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: calc(100% - 70px);
+  border: none;
+  background: white;
+}
+
+.pdf-error {
+  display: none;
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.pdf-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100% - 70px);
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .pdf-container {
+    height: calc(100vh - 150px);
+    min-height: 500px;
+  }
+  
+  .pdf-header {
+    padding: 0.75rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .pdf-controls {
+    justify-content: center;
+  }
+  
+  .pdf-button {
+    padding: 0.75rem 1rem;
+  }
+}
+</style>
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    
+    {% if page.authors %}
+      <div class="authors" style="font-size: 1.1rem; margin-bottom: 0.5rem; color: #666;">
+        {% assign author_list = page.authors | split: ', ' %}
+        {% for author in author_list %}
+          {% if author contains 'John Schrom' %}
+            <u>{{ author }}</u>{% unless forloop.last %}, {% endunless %}
+          {% else %}
+            {{ author }}{% unless forloop.last %}, {% endunless %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+  </header>
+
+  <article>
+    {% if page.pdf_url %}
+    <div class="pdf-container">
+      <div class="pdf-header">
+        <h2 class="pdf-title">
+          {% if page.document_type == 'Poster' %}
+            Poster Presentation at <em>{{ page.venue }}</em>{% if page.year %} ({{ page.year }}){% endif %}
+          {% elsif page.document_type == 'Slides' %}
+            Oral Presentation at <em>{{ page.venue }}</em>{% if page.year %} ({{ page.year }}){% endif %}
+          {% elsif page.document_type == 'Publication' %}
+            Published in <em>{{ page.venue }}</em>{% if page.year %} ({{ page.year }}){% endif %}
+          {% else %}
+            {% if page.venue %}<em>{{ page.venue }}</em>{% endif %}
+            {% if page.venue and page.year %}, {% endif %}
+            {% if page.year %}{{ page.year }}{% endif %}
+          {% endif %}
+        </h2>
+        <div class="pdf-controls">
+          <a href="{{ page.pdf_url }}" class="pdf-button" download>
+            <i class="fas fa-download"></i>
+            Download PDF
+          </a>
+          <a href="{{ page.pdf_url }}" class="pdf-button" target="_blank">
+            <i class="fas fa-external-link-alt"></i>
+            Open in New Tab
+          </a>
+        </div>
+      </div>
+      
+      <div class="pdf-loading" id="pdf-loading">
+        <div>Loading PDF...</div>
+      </div>
+      
+      <iframe class="pdf-viewer" id="pdf-viewer" style="display: none;"></iframe>
+      
+      <div class="pdf-error" id="pdf-error">
+        <h3>Unable to load PDF</h3>
+        <p>Your browser may not support inline PDF viewing.</p>
+        <a href="{{ page.pdf_url }}" class="pdf-button" download>
+          <i class="fas fa-download"></i>
+          Download PDF instead
+        </a>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Get PDF info from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const pdfFromUrl = urlParams.get('pdf');
+        const titleFromUrl = urlParams.get('title');
+        
+        // Use URL parameters or page front matter
+        const pdfUrl = pdfFromUrl || '{{ page.pdf_url }}';
+        const pdfTitle = titleFromUrl || '{{ page.pdf_title }}' || '{{ page.title }}';
+        
+        const pdfViewer = document.getElementById('pdf-viewer');
+        const pdfLoading = document.getElementById('pdf-loading');
+        const pdfError = document.getElementById('pdf-error');
+        
+        // Update page elements if we have URL parameters
+        if (pdfFromUrl && titleFromUrl) {
+          document.title = titleFromUrl + ' - {{ site.title }}';
+          const pageTitle = document.querySelector('.post-title');
+          const pdfTitleElement = document.querySelector('.pdf-title');
+          if (pageTitle) pageTitle.textContent = titleFromUrl;
+          if (pdfTitleElement) pdfTitleElement.textContent = titleFromUrl;
+          
+          // Update download links
+          const downloadLinks = document.querySelectorAll('a[href="{{ page.pdf_url }}"]');
+          downloadLinks.forEach(link => link.href = pdfUrl);
+        }
+        
+        // Track PDF view with Umami if available
+        if (typeof umami !== 'undefined' && pdfUrl) {
+          umami.track('PDF View', { 
+            pdf: pdfTitle,
+            url: pdfUrl 
+          });
+        }
+        
+        // Try to load PDF
+        if (pdfUrl) {
+          setTimeout(() => {
+            try {
+              // First try direct PDF loading (most browsers support this)
+              pdfViewer.src = pdfUrl;
+              
+              pdfViewer.onload = function() {
+                pdfLoading.style.display = 'none';
+                pdfViewer.style.display = 'block';
+              };
+              
+              // If direct loading fails, try alternative approaches
+              pdfViewer.onerror = function() {
+                // Try using Google Docs viewer as fallback
+                const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(window.location.origin + pdfUrl)}&embedded=true`;
+                
+                pdfViewer.src = googleViewerUrl;
+                pdfViewer.onload = function() {
+                  pdfLoading.style.display = 'none';
+                  pdfViewer.style.display = 'block';
+                };
+                
+                pdfViewer.onerror = function() {
+                  pdfLoading.style.display = 'none';
+                  pdfError.style.display = 'block';
+                };
+              };
+              
+            } catch (error) {
+              console.error('PDF loading error:', error);
+              pdfLoading.style.display = 'none';
+              pdfError.style.display = 'block';
+            }
+          }, 100);
+        } else {
+          pdfLoading.style.display = 'none';
+          pdfError.style.display = 'block';
+        }
+      });
+    </script>
+    
+    {% else %}
+    <div class="alert alert-warning">
+      <strong>No PDF specified.</strong> Please add a <code>pdf_url</code> to the page front matter.
+    </div>
+    {% endif %}
+    
+    {{ content }}
+  </article>
+</div>
