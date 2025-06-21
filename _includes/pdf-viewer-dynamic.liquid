@@ -1,0 +1,32 @@
+<!-- Dynamic PDF Viewer Include -->
+<!-- Usage: {% include pdf-viewer-dynamic.liquid pdf_url="/assets/pdf/example.pdf" title="Document Title" %} -->
+
+<script>
+// Get PDF info from URL parameters if not provided via include
+const urlParams = new URLSearchParams(window.location.search);
+const pdfFromUrl = urlParams.get('pdf');
+const titleFromUrl = urlParams.get('title');
+
+// Use include parameters or URL parameters
+const pdfUrl = '{{ include.pdf_url }}' || pdfFromUrl;
+const pdfTitle = '{{ include.title }}' || titleFromUrl || 'PDF Document';
+
+if (pdfUrl) {
+  // Update page title
+  document.title = pdfTitle + ' - {{ site.title }}';
+  
+  // Update meta description for better SEO
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) {
+    metaDesc.content = 'View ' + pdfTitle + ' - {{ site.description }}';
+  }
+  
+  // Track with Umami
+  if (typeof umami !== 'undefined') {
+    umami.track('PDF View', { 
+      pdf: pdfTitle,
+      url: pdfUrl 
+    });
+  }
+}
+</script>

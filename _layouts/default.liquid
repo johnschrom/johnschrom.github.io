@@ -13,7 +13,9 @@
       <meta http-equiv="refresh" content="3; url={{ redirect }}">
     {% endif %}
     {% include head.liquid %}
+    {% unless jekyll.environment == "development" %}
     <script defer src="https://umami.johnschrom.com/script.js" data-website-id="f854f84d-31f9-4e86-a819-cbce43697f80"></script>
+    {% endunless %}
   </head>
 
   <!-- Body -->
