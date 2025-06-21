@@ -235,7 +235,6 @@ jekyll-minifier:
   exclude: ["robots.txt", "assets/js/search/*.js", "assets/libs/**/*", "_layouts/*.liquid"]
   uglifier_args:
     harmony: true
-    es6: true
 
 # -----------------------------------------------------------------------------
 # Jekyll Archives
