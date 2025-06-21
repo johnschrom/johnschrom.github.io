@@ -18,10 +18,24 @@ module Jekyll
     CACHE_FILE = '.pdf_pages_cache'
 
     def generate(site)
-      return unless File.directory?(PDF_DIR)
+      Jekyll.logger.info "PDF Pages:", "Plugin starting..."
       
-      # Check if we need to regenerate (PDFs or bib file changed)
-      return unless needs_regeneration?
+      unless File.directory?(PDF_DIR)
+        Jekyll.logger.warn "PDF Pages:", "PDF directory '#{PDF_DIR}' not found"
+        return
+      end
+      
+      Jekyll.logger.info "PDF Pages:", "PDF directory found"
+      
+      # For GitHub Actions, always regenerate (no cache file access)
+      if ENV['GITHUB_ACTIONS']
+        Jekyll.logger.info "PDF Pages:", "Running in GitHub Actions, forcing regeneration"
+      elsif needs_regeneration?
+        Jekyll.logger.info "PDF Pages:", "Regeneration needed (cache miss)"
+      else
+        Jekyll.logger.info "PDF Pages:", "No regeneration needed, skipping"
+        return
+      end
       
       Jekyll.logger.info "PDF Pages:", "Generating PDF viewer pages..."
       
@@ -106,11 +120,12 @@ module Jekyll
       # Clean up old generated files
       cleanup_old_files(generated_files)
       
-      # Update cache
-      update_cache
+      # Update cache (skip in GitHub Actions)
+      update_cache unless ENV['GITHUB_ACTIONS']
       
-      Jekyll.logger.info "PDF Pages:", "Generated #{pdf_files.length} PDF viewer pages"
+      Jekyll.logger.info "PDF Pages:", "Successfully generated #{pdf_files.length} PDF viewer pages"
       Jekyll.logger.info "PDF Pages:", "Bibliography matches: #{pdf_files.count { |pdf| find_bib_entry(pdf, bib_entries) }}/#{pdf_files.length}"
+      Jekyll.logger.info "PDF Pages:", "Files created in: #{PAGES_DIR}"
     end
 
     private
