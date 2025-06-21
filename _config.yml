@@ -232,9 +232,10 @@ sass:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
-  exclude: ["robots.txt", "assets/js/search/*.js", "assets/libs/**/*"]
+  exclude: ["robots.txt", "assets/js/search/*.js", "assets/libs/**/*", "_layouts/*.liquid"]
   uglifier_args:
     harmony: true
+    es6: true
 
 # -----------------------------------------------------------------------------
 # Jekyll Archives
@@ -343,7 +344,7 @@ external_links:
 # MAKE SURE imagemagick is installed and on your PATH before enabling imagemagick. In a terminal, run:
 #   convert -version
 imagemagick:
-  enabled: true # enables responsive images for your site (recommended, see https://github.com/alshedivat/al-folio/issues/537)
+  enabled: false # disabled to prevent deploy errors when ImageMagick is not available
   widths:
     - 480
     - 800
