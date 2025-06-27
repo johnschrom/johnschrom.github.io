@@ -232,7 +232,7 @@ sass:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
-  exclude: ["robots.txt", "assets/js/search/*.js", "assets/libs/**/*", "_layouts/*.liquid", "assets/js/pdfjs*/**/*"]
+  exclude: ["robots.txt", "assets/js/search/*.js", "assets/libs/**/*", "_layouts/*.liquid", "_layouts/**/*", "assets/js/pdfjs*/**/*"]
   uglifier_args:
     harmony: true
     compress: false
