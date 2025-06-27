@@ -3,10 +3,10 @@ layout: page
 title: Portfolio
 permalink: /portfolio/
 description: Below are details on a few of the larger projects I've worked on.
+nav: false
 nav_order: 2
 display_categories: [work, fun]
 horizontal: true
-nav: false
 ---
 
 <div class="projects">
