@@ -13,8 +13,28 @@ nav_order: 1
 
 {% include bib_search.liquid %}
 
+
 <div class="publications">
 
 {% bibliography %}
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Helper function to track events in Umami
+  function trackEvent(eventName, eventData = {}) {
+    if (typeof umami !== 'undefined') {
+      umami.track(eventName, eventData);
+    }
+  }
+
+  // Count total publications on page load
+  const publicationCount = document.querySelectorAll('.bibliography > li').length;
+  
+  // Track research page load
+  trackEvent('research-page-loaded', {
+    totalPublications: publicationCount
+  });
+});
+</script>

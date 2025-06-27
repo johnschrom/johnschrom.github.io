@@ -1,0 +1,147 @@
+---
+layout: default
+---
+{% if page._styles %}
+  <!-- Page/Post style -->
+  <style type="text/css">
+    {{ page._styles }}
+  </style>
+{% endif %}
+
+<style>
+.photography-gallery {
+  margin-top: 2rem;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.photo-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.photo-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.photo-item figure {
+  margin: 0;
+  padding: 0;
+}
+
+.photo-item img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.photo-item:hover .photo-overlay {
+  opacity: 1;
+}
+
+.photo-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.01em;
+}
+
+.photo-description {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.photo-meta {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+@media (max-width: 768px) {
+  .photo-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .photo-item img {
+    height: 250px;
+  }
+}
+</style>
+
+<div class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-description">{{ page.description }}</p>
+  </header>
+
+  <article>
+    {{ content }}
+    
+    {% if page.photos %}
+    <div class="photography-gallery">
+      <div class="photo-grid">
+        {% for photo in page.photos %}
+          <div class="photo-item" data-zoomable>
+            {% assign photo_path = '/assets/img/photography/' | append: page.photo_category | append: '/' | append: photo.image %}
+            {% include figure.liquid 
+              path=photo_path 
+              class="photo-image"
+              zoomable=true
+            %}
+            {% if photo.title or photo.description or photo.camera or photo.settings %}
+            <div class="photo-overlay">
+              {% if photo.title and photo.title != '' %}
+                <div class="photo-title">{{ photo.title }}</div>
+              {% endif %}
+              {% if photo.description and photo.description != '' %}
+                <div class="photo-description">{{ photo.description }}</div>
+              {% endif %}
+              {% if photo.camera or photo.settings %}
+                <div class="photo-meta">
+                  {% if photo.camera %}{{ photo.camera }}{% endif %}
+                  {% if photo.camera and photo.settings %} • {% endif %}
+                  {% if photo.settings %}{{ photo.settings }}{% endif %}
+                </div>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </article>
+</div>

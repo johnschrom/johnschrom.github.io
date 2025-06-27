@@ -305,6 +305,19 @@ ul.task-list input[type="checkbox"] {
     }
   }
 
+  .navbar-nav .nav-item.nav-divider {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    
+    .nav-separator {
+      width: 1px;
+      height: 1.2rem;
+      background-color: var(--global-divider-color);
+      opacity: 0.8;
+    }
+  }
+
   .navbar-brand.social {
     padding-bottom: 0;
     padding-top: 0;
