@@ -348,6 +348,15 @@ layout: default
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+  
+  .post {
+    overflow-x: hidden;
+  }
+  
   .stories-timeline {
     gap: 3rem;
   }
@@ -387,6 +396,15 @@ layout: default
   .photos-grid.three-photos,
   .photos-grid.many-photos {
     grid-template-columns: 1fr;
+  }
+  
+  .story-card {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .photo-container {
+    max-width: 100%;
   }
   
   .photo-caption {
@@ -531,6 +549,8 @@ html[data-theme="dark"] .story-card:hover {
   gap: 0.4rem;
   justify-content: center;
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -584,12 +604,18 @@ html[data-theme="dark"] .story-card:hover {
   }
   
   .year-filters {
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    max-width: 100%;
   }
   
   .filter-btn {
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
+    flex: 0 0 auto;
+    min-width: 60px;
+    white-space: nowrap;
   }
   
   .photo-modal-caption {
@@ -883,7 +909,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function initMap() {
     if (!isInitialized) {
       // Create map centered on US
-      map = L.map('adventure-map').setView([39.8283, -98.5795], 4);
+      // Detect mobile and adjust initial view
+      const isMobile = window.innerWidth <= 768;
+      const initialZoom = isMobile ? 3 : 4;
+      const initialCenter = isMobile ? [39.8283, -98.5795] : [39.8283, -98.5795];
+      
+      map = L.map('adventure-map').setView(initialCenter, initialZoom);
       
       // Add tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1293,9 +1324,11 @@ document.addEventListener('DOMContentLoaded', function() {
       stories.forEach(story => story.classList.remove('hidden'));
       activeLocationFilter = null;
       
-      // Reset map zoom
-      map.setView([39.8283, -98.5795], 4);
-      currentZoomLevel = 4;
+      // Reset map zoom (adjust for mobile)
+      const isMobile = window.innerWidth <= 768;
+      const resetZoom = isMobile ? 3 : 4;
+      map.setView([39.8283, -98.5795], resetZoom);
+      currentZoomLevel = resetZoom;
       
       // Redraw markers for national view
       setTimeout(() => {
