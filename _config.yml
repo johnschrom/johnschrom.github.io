@@ -145,6 +145,10 @@ collections:
   projects:
     output: true
     permalink: /:collection/:title/
+  adventures:
+    output: false
+    sort_by: date
+    sort_reverse: true
 
 announcements:
   enabled: true

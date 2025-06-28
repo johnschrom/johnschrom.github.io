@@ -205,24 +205,222 @@ ul.task-list input[type="checkbox"] {
       margin: 0;
     }
   }
+  
+  img {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+    }
+  }
 }
 
 .profile.float-right {
-  margin-left: 1rem;
+  margin-left: 1.5rem;
 }
 
 .profile.float-left {
-  margin-right: 1rem;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Bio section styling options */
+.bio-container {
+  background: var(--global-bg-color);
+  border: 2px solid var(--global-divider-color);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.bio-text-only {
+  background: var(--global-bg-color);
+  border: 2px solid var(--global-divider-color);
+  border-radius: 0.375rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Alternative softer styling */
+.bio-container.soft {
+  background: linear-gradient(135deg, rgba(89, 125, 206, 0.03) 0%, rgba(89, 125, 206, 0.01) 100%);
+  border: 1px solid rgba(89, 125, 206, 0.15);
+  border-radius: 12px;
+}
+
+.bio-text-only.soft {
+  background: linear-gradient(135deg, rgba(89, 125, 206, 0.03) 0%, rgba(89, 125, 206, 0.01) 100%);
+  border: 1px solid rgba(89, 125, 206, 0.15);
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Contact section styling */
+.contact-section-wrapper {
+  margin-top: 2rem;
+  clear: both;
+  
+  h2 {
+    margin-bottom: 0.75rem;
+    color: var(--global-text-color);
+  }
+  
+  p {
+    margin-bottom: 1.25rem;
+    color: var(--global-text-color-light);
+  }
+}
+
+.contact-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  i {
+    color: var(--global-theme-color);
+    width: 1.25rem;
+    text-align: center;
+  }
+  
+  a {
+    color: var(--global-text-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: var(--global-theme-color);
+    }
+  }
 }
 
 @media (min-width: 576px) {
   .profile {
-    width: 30%;
+    width: 35%;
 
     .address {
       p {
         display: block;
       }
+    }
+  }
+  
+  /* Desktop layout with matching heights */
+  .bio-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  
+  .profile-container {
+    flex: 0 0 35%;
+    
+    .profile {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      margin: 0 !important;
+      float: none !important;
+      width: 100% !important;
+      border-radius: 0.375rem;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      
+      figure {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+      }
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 0.375rem;
+        display: block;
+        margin: 0;
+        padding: 0;
+        flex: 1;
+      }
+    }
+  }
+  
+  .bio-text-only, .bio-text-only.soft {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .bio-layout {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .profile-container {
+    flex: none;
+    
+    .profile {
+      padding: 1rem;
+      text-align: center;
+      height: auto;
+      
+      img {
+        max-width: 200px;
+        margin: 0 auto;
+      }
+    }
+  }
+  
+  .bio-text-only, .bio-text-only.soft {
+    padding: 1rem;
+    justify-content: flex-start;
+  }
+  
+  .contact-section-wrapper {
+    margin-top: 1.5rem;
+  }
+}
+
+// Mobile improvements for home page
+@media (max-width: 575px) {
+  .about article {
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+    
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    
+    h1 + p {
+      font-size: 1.05rem;
+    }
+  }
+  
+  .profile {
+    margin-bottom: 1.5rem;
+    
+    img {
+      max-width: 200px;
+      margin: 0 auto;
+      display: block;
     }
   }
 }

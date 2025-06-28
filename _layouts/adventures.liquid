@@ -214,7 +214,40 @@ layout: default
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
   transition: all 0.2s ease;
+}
+
+.photo-container.focus-top img {
+  object-position: center top;
+}
+
+.photo-container.focus-bottom img {
+  object-position: center bottom;
+}
+
+.photo-container.focus-left img {
+  object-position: left center;
+}
+
+.photo-container.focus-right img {
+  object-position: right center;
+}
+
+.photo-container.focus-top-left img {
+  object-position: left top;
+}
+
+.photo-container.focus-top-right img {
+  object-position: right top;
+}
+
+.photo-container.focus-bottom-left img {
+  object-position: left bottom;
+}
+
+.photo-container.focus-bottom-right img {
+  object-position: right bottom;
 }
 
 .photo-container:hover img {
@@ -468,34 +501,35 @@ html[data-theme="dark"] .story-card:hover {
 
 .map-pin:hover {
   transform: scale(1.2);
+  box-shadow: 0 0 12px rgba(66, 133, 244, 0.8), 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .single-pin {
   background: #4285f4;
   border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  width: 12px;
-  height: 12px;
+  box-shadow: 0 0 8px rgba(66, 133, 244, 0.6), 0 1px 3px rgba(0,0,0,0.3);
+  width: 16px;
+  height: 16px;
 }
 
 .multi-pin {
-  background: #ea4335;
-  width: 18px;
-  height: 18px;
-  box-shadow: 0 3px 12px rgba(234, 67, 53, 0.5);
+  background: #4285f4;
+  width: 16px;
+  height: 16px;
+  box-shadow: 0 0 8px rgba(66, 133, 244, 0.6), 0 1px 3px rgba(0,0,0,0.3);
   border: 2px solid white;
 }
 
-/* Add a subtle pulse animation for clusters */
-.multi-pin::before {
+/* Add a subtle pulse animation for all pins */
+.map-pin::before {
   content: '';
   position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  bottom: -3px;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
   border-radius: 50%;
-  background: rgba(234, 67, 53, 0.15);
+  background: rgba(66, 133, 244, 0.15);
   animation: pulse 3s ease-in-out infinite;
 }
 
@@ -505,7 +539,7 @@ html[data-theme="dark"] .story-card:hover {
     opacity: 0.8;
   }
   50% {
-    transform: scale(1.8);
+    transform: scale(1.5);
     opacity: 0;
   }
   100% {
@@ -646,7 +680,8 @@ html[data-theme="dark"] .story-card:hover {
   <article>
     {{ content }}
     
-    {% if page.life_stories %}
+    {% assign adventures = site.adventures | sort: 'date' | reverse %}
+    {% if adventures.size > 0 %}
     <!-- Adventure Map and Filters -->
     <div class="adventure-controls">
       <div class="adventure-map-container">
@@ -665,19 +700,18 @@ html[data-theme="dark"] .story-card:hover {
     
     <div class="life-travels-container">
       <div class="stories-timeline" id="stories-timeline">
-        {% for story in page.life_stories %}
+        {% for story in adventures %}
           {% assign story_year = story.date | date: "%Y" %}
           {% assign story_location = story.location | default: "Unknown" %}
           {% assign adventure_id = story.title | downcase | replace: ' ', '-' | replace: '[^a-z0-9-]', '' %}
-          {% assign adventure_id = adventure_id | append: '-' | append: story.date %}
+          {% assign story_date_formatted = story.date | date: "%Y-%m-%d" %}
+          {% assign adventure_id = adventure_id | append: '-' | append: story_date_formatted %}
           <div class="story-item" data-year="{{ story_year }}" data-location="{{ story_location }}" data-coordinates="{{ story.coordinates }}" data-adventure-id="{{ adventure_id }}" data-adventure-title="{{ story.title }}" data-adventure-date="{{ story.date }}">
             <button class="deselect-button" title="Deselect adventure">&times;</button>
             <article class="story-card">
               <header class="story-header">
                 <div class="story-meta">
                   {% if story.end_date %}
-                    {% assign start_day = story.date | date: "%d" %}
-                    {% assign end_day = story.end_date | date: "%d" %}
                     {% assign start_month = story.date | date: "%B" %}
                     {% assign end_month = story.end_date | date: "%B" %}
                     {% assign start_year = story.date | date: "%Y" %}
@@ -685,19 +719,15 @@ html[data-theme="dark"] .story-card:hover {
                     
                     {% if start_year == end_year %}
                       {% if start_month == end_month %}
-                        {% if start_day == end_day %}
-                          <time class="story-date">{{ story.date | date: "%B %d, %Y" }}</time>
-                        {% else %}
-                          <time class="story-date">{{ start_month }} {{ start_day }}-{{ end_day }}, {{ start_year }}</time>
-                        {% endif %}
+                        <time class="story-date">{{ start_month }} {{ start_year }}</time>
                       {% else %}
-                        <time class="story-date">{{ story.date | date: "%B %d" }} - {{ story.end_date | date: "%B %d" }}, {{ start_year }}</time>
+                        <time class="story-date">{{ start_month }} - {{ end_month }} {{ start_year }}</time>
                       {% endif %}
                     {% else %}
-                      <time class="story-date">{{ story.date | date: "%B %d, %Y" }} - {{ story.end_date | date: "%B %d, %Y" }}</time>
+                      <time class="story-date">{{ start_month }} {{ start_year }} - {{ end_month }} {{ end_year }}</time>
                     {% endif %}
                   {% else %}
-                    <time class="story-date">{{ story.date | date: "%B %d, %Y" }}</time>
+                    <time class="story-date">{{ story.date | date: "%B %Y" }}</time>
                   {% endif %}
                   {% if story.location %}
                     <span class="story-location">{{ story.location }}</span>
@@ -722,10 +752,16 @@ html[data-theme="dark"] .story-card:hover {
                 
                 <div class="photos-grid {{ grid_class }}">
                   {% for photo in story.photos %}
-                    <div class="photo-container" 
+                    {% if photo.focus %}
+                      {% assign focus_class = "focus-" | append: photo.focus %}
+                    {% else %}
+                      {% assign focus_class = "" %}
+                    {% endif %}
+                    <div class="photo-container {{ focus_class }}" 
                          data-image="{{ photo.image }}"
                          data-caption="{{ photo.caption }}"
-                         data-long-caption="{{ photo.long_caption | default: photo.caption }}">
+                         data-long-caption="{{ photo.long_caption | default: photo.caption }}"
+                         data-focus="{{ photo.focus | default: 'center' }}"
                       {% assign photo_path = '/assets/img/adventures/' | append: photo.image %}
                       {% include figure.liquid 
                         path=photo_path
@@ -761,7 +797,7 @@ html[data-theme="dark"] .story-card:hover {
 <!-- Hidden canvas for color extraction -->
 <canvas id="color-extraction-canvas" style="display: none;"></canvas>
 
-{% if page.life_stories %}
+{% if adventures.size > 0 %}
 <!-- Leaflet JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/leaflet@{{ site.third_party_libraries.leaflet.version }}/dist/leaflet.min.js"
         integrity="{{ site.third_party_libraries.leaflet.integrity.js }}" crossorigin="anonymous"></script>
@@ -777,11 +813,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Adventure data from Jekyll - extract photo locations
   const adventures = [
-    {% for story in page.life_stories %}
+    {% for story in adventures %}
     {
       title: {{ story.title | jsonify }},
       location: {{ story.location | jsonify }},
-      date: {{ story.date | jsonify }},
+      date: {{ story.date | date: "%Y-%m-%d" | jsonify }},
       year: {{ story.date | date: "%Y" | jsonify }},
       story: {{ story.story | jsonify }},
       photos: [
@@ -982,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Filter by specific adventure if selected
     if (activeAdventureFilter) {
       filteredPhotoLocations = photoLocations.filter(photoLocation => {
-        const adventureIdFromData = `${photoLocation.adventureTitle.toLowerCase().replace(/ /g, '-')}-${photoLocation.adventure.date}`;
+        const adventureIdFromData = generateAdventureId(photoLocation.adventureTitle, photoLocation.adventure.date);
         return adventureIdFromData === activeAdventureFilter;
       });
     }
@@ -1057,15 +1093,10 @@ document.addEventListener('DOMContentLoaded', function() {
       const photoCount = group.photos.length;
       const adventureCount = group.adventuresList.length;
       
-      // Create custom icon based on number of photos - minimal design
+      // Create custom icon - all pins same blue color and size
       let iconHtml, iconSize;
-      if (photoCount === 1) {
-        iconHtml = `<div class="map-pin single-pin"></div>`;
-        iconSize = [12, 12];
-      } else {
-        iconHtml = `<div class="map-pin multi-pin"></div>`;
-        iconSize = [18, 18];
-      }
+      iconHtml = `<div class="map-pin single-pin"></div>`;
+      iconSize = [16, 16];
       
       const customIcon = L.divIcon({
         html: iconHtml,
@@ -1145,8 +1176,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (adventureCount === 1) {
       // Single adventure - select it like clicking the card
       const adventure = group.adventuresList[0];
-      // Match Jekyll's actual ID generation: downcase, replace spaces with dashes, but keep parentheses
-      const adventureId = `${adventure.title.toLowerCase().replace(/ /g, '-')}-${adventure.date}`;
+      // Use consistent adventure ID generation
+      const adventureId = generateAdventureId(adventure.title, adventure.date);
       const storyItem = document.querySelector(`[data-adventure-id="${adventureId}"]`);
       
       if (storyItem) {
@@ -1409,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function filterToSingleAdventure(adventureId) {
     // Find the adventure by ID (using title + date as identifier)
     const targetAdventure = adventures.find(adv => {
-      const adventureIdFromData = `${adv.title.toLowerCase().replace(/ /g, '-')}-${adv.date}`;
+      const adventureIdFromData = generateAdventureId(adv.title, adv.date);
       return adventureIdFromData === adventureId;
     });
     
@@ -1433,7 +1464,7 @@ document.addEventListener('DOMContentLoaded', function() {
     selectedAdventureId = adventureId;
     
     // Set year filter to match the adventure
-    const adventureYear = targetAdventure.date.substring(0, 4);
+    const adventureYear = targetAdventure.year;
     activeYearFilter = adventureYear;
     activeAdventureFilter = adventureId;
     
@@ -1502,6 +1533,12 @@ document.addEventListener('DOMContentLoaded', function() {
   let selectedAdventureId = null;
   let programmaticHashChange = false;
   
+  // Consistent adventure ID generation function (matches Jekyll template)
+  function generateAdventureId(title, date) {
+    // Date should already be in YYYY-MM-DD format
+    return title.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + date;
+  }
+  
   function handleAdventureCardClick(storyItem) {
     const adventureId = storyItem.getAttribute('data-adventure-id');
     const adventureTitle = storyItem.getAttribute('data-adventure-title');
@@ -1531,13 +1568,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Find the adventure data
     const targetAdventure = adventures.find(adv => {
-      const adventureIdFromData = `${adv.title.toLowerCase().replace(/ /g, '-')}-${adv.date}`;
+      const adventureIdFromData = generateAdventureId(adv.title, adv.date);
       return adventureIdFromData === adventureId;
     });
     
     if (targetAdventure) {
       // Set year filter to match the adventure
-      const adventureYear = targetAdventure.date.substring(0, 4);
+      const adventureYear = targetAdventure.year;
       activeYearFilter = adventureYear;
       activeAdventureFilter = adventureId;
       
@@ -1690,10 +1727,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check for direct adventure link on page load
     handleDirectAdventureLink();
     
+    // Apply custom focus positioning to photos
+    applyPhotoFocus();
+    
     // Track adventures page load
     trackEvent('adventures-page-loaded', {
       totalStories: adventures.length,
       totalPhotos: photoLocations.length
+    });
+  }
+  
+  // Apply custom focus positioning to photos
+  function applyPhotoFocus() {
+    document.querySelectorAll('.photo-container').forEach(container => {
+      const focus = container.dataset.focus;
+      const img = container.querySelector('img');
+      
+      if (img && focus && focus !== 'center') {
+        // Handle percentage values (e.g., "30%" for 30% from top)
+        if (focus.includes('%')) {
+          if (focus.match(/^\d+%$/)) {
+            // Vertical percentage (e.g., "30%" = 30% from top)
+            img.style.objectPosition = `center ${focus}`;
+          } else if (focus.match(/^\d+%\s+\d+%$/)) {
+            // Both horizontal and vertical (e.g., "20% 30%")
+            img.style.objectPosition = focus;
+          }
+        }
+        // Handle custom position strings (e.g., "left 20%", "right top")
+        else if (focus.includes(' ') && !container.classList.contains(`focus-${focus}`)) {
+          img.style.objectPosition = focus;
+        }
+      }
     });
   }
 });
