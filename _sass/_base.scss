@@ -258,6 +258,47 @@ ul.task-list input[type="checkbox"] {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+/* Fix double underlines by targeting content areas only, not navigation */
+.news, .post, article, main, .content {
+  /* Disable pseudo-element transitions in content areas */
+  * {
+    &::before, &:before, &::after, &:after {
+      transition: none !important;
+      text-decoration: none !important;
+      border-bottom: none !important;
+      border-top: none !important;
+    }
+  }
+
+  /* Target link pseudo-elements in content */
+  a {
+    &::before, &:before, &::after, &:after {
+      display: none !important;
+      content: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+    
+    /* Ensure only the link itself can have underlines */
+    &:hover {
+      text-decoration: underline !important;
+      
+      &::before, &:before, &::after, &:after {
+        display: none !important;
+        text-decoration: none !important;
+        border-bottom: none !important;
+      }
+    }
+  }
+}
+
+/* Preserve nav link behavior - no underlines, just color change */
+nav, .navbar, .nav {
+  a:hover {
+    text-decoration: none !important;
+  }
+}
+
 /* Contact section styling */
 .contact-section-wrapper {
   margin-top: 2rem;
@@ -360,7 +401,7 @@ ul.task-list input[type="checkbox"] {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     margin-top: 0;
   }
 }
@@ -373,15 +414,30 @@ ul.task-list input[type="checkbox"] {
   
   .profile-container {
     flex: none;
+    width: 100% !important;
     
     .profile {
-      padding: 1rem;
+      padding: 0 !important;
       text-align: center;
-      height: auto;
+      height: auto !important;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      float: none !important;
+      
+      figure {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
       
       img {
-        max-width: 200px;
-        margin: 0 auto;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        max-width: none !important;
       }
     }
   }
