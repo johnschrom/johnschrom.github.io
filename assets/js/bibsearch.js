@@ -119,7 +119,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 100);
       
       // Track direct article access
-      trackEvent('research-direct-article-access', {
+      const articleSlug = articleKey.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30);
+      trackEvent(`art-link-${articleSlug}`, {
         articleKey: articleKey,
         articleTitle: articleElement.querySelector('.title')?.textContent || 'Unknown'
       });
@@ -227,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("bibsearch").value = '';
     
     // Track filter clear
-    trackEvent('research-article-filter-cleared');
+    trackEvent('art-clear');
   };
 
   // Sensitive search. Only start searching if there's been no input for 300 ms
@@ -246,7 +247,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Track search if search term is not empty
     if (searchTerm.trim().length > 0) {
-      trackEvent('research-search', { 
+      const searchSlug = searchTerm.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);
+      trackEvent(`search-${searchSlug}`, { 
         searchTerm: searchTerm.substring(0, 50) // Limit length for privacy 
       });
     }
@@ -284,7 +286,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!observedPublications.has(publicationId)) {
           observedPublications.add(publicationId);
           
-          trackEvent('publication-impression', {
+          const publicationSlug = publicationId.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30);
+          trackEvent(`pub-view-${publicationSlug}`, {
             publicationId: publicationId,
             publicationTitle: publicationTitle.substring(0, 50), // Limit length for privacy
             pageUrl: window.location.pathname
