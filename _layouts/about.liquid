@@ -29,34 +29,17 @@ layout: default
         </div>
       {% endif %}
 
-      <div class="bio-text-only soft">{{ content }}</div>
+      <div class="bio-text-only">{{ content }}</div>
     </div>
     
-    <!-- Contact section -->
-    <div class="contact-section-wrapper">
-      <h2>Get in Touch</h2>
-      <p>I'm always happy to connect (or re-connect)! Feel free to reach out:</p>
-      
-      <div class="contact-section">
-        <div class="contact-item">
-          <i class="fa-solid fa-envelope"></i>
-          <a href="mailto:john@schrom.org">john@schrom.org</a>
-        </div>
-        <div class="contact-item">
-          <i class="fa-solid fa-phone"></i>
-          <a href="tel:415-758-3232">415-758-3232</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- News -->
+    <!-- Recent Updates -->
     {% if page.news and site.announcements.enabled %}
-    <hr>
-      <h2>
-        News
-      </h2>
-      {% include news.liquid limit=true %}
+    <div class="news-section-wrapper soft">
+      <h2>Recent Updates</h2>
+      {% include news.liquid %}
+    </div>
     {% endif %}
+
 
     <!-- Selected papers -->
     {% if page.selected_papers %}
@@ -82,3 +65,93 @@ layout: default
     {% endif %}
   </article>
 </div>
+
+<!-- News filtering and show more functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filterButtons = document.querySelectorAll('.news-filter-btn');
+  const newsItems = document.querySelectorAll('.news-item');
+  const showMoreBtn = document.getElementById('show-more-btn');
+  const showLessBtn = document.getElementById('show-less-btn');
+  
+  let currentFilter = 'all';
+  let showingAll = false;
+  
+  // Filter functionality
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Update active button
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      
+      currentFilter = this.getAttribute('data-filter');
+      filterNews();
+    });
+  });
+  
+  // Show more/less functionality
+  if (showMoreBtn) {
+    showMoreBtn.addEventListener('click', function() {
+      showingAll = true;
+      filterNews();
+      showMoreBtn.classList.add('hidden');
+      if (showLessBtn) showLessBtn.classList.remove('hidden');
+    });
+  }
+  
+  if (showLessBtn) {
+    showLessBtn.addEventListener('click', function() {
+      showingAll = false;
+      filterNews();
+      showLessBtn.classList.add('hidden');
+      if (showMoreBtn) showMoreBtn.classList.remove('hidden');
+    });
+  }
+  
+  function filterNews() {
+    let visibleCount = 0;
+    
+    newsItems.forEach(item => {
+      const itemTags = item.getAttribute('data-tags') || '';
+      const itemIndex = parseInt(item.getAttribute('data-index'));
+      
+      // Check if item matches current filter
+      let matchesFilter = currentFilter === 'all' || itemTags.includes(currentFilter);
+      
+      // Check if item should be visible based on show more/less
+      let withinLimit = showingAll || visibleCount < 3;
+      
+      if (matchesFilter && withinLimit) {
+        item.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+    
+    // Update show more/less button visibility
+    const totalMatchingItems = Array.from(newsItems).filter(item => {
+      const itemTags = item.getAttribute('data-tags') || '';
+      return currentFilter === 'all' || itemTags.includes(currentFilter);
+    }).length;
+    
+    if (showMoreBtn && showLessBtn) {
+      if (totalMatchingItems > 3) {
+        if (showingAll) {
+          showMoreBtn.classList.add('hidden');
+          showLessBtn.classList.remove('hidden');
+        } else {
+          showMoreBtn.classList.remove('hidden');
+          showLessBtn.classList.add('hidden');
+        }
+      } else {
+        showMoreBtn.classList.add('hidden');
+        showLessBtn.classList.add('hidden');
+      }
+    }
+  }
+  
+  // Initialize with default filter
+  filterNews();
+});
+</script>

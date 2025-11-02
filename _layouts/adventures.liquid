@@ -8,9 +8,8 @@ layout: default
   </style>
 {% endif %}
 
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@{{ site.third_party_libraries.leaflet.version }}/dist/leaflet.min.css" 
-      integrity="{{ site.third_party_libraries.leaflet.integrity.css }}" crossorigin="anonymous" />
+<!-- Leaflet CSS (Local) -->
+<link rel="stylesheet" href="{{ '/assets/js/leaflet/dist/leaflet.min.css' | relative_url }}" />
 
 <style>
 .life-travels-container {
@@ -470,6 +469,7 @@ html[data-theme="dark"] .story-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
+
 /* Adventure Map and Filters */
 .adventure-controls {
   margin-bottom: 3rem;
@@ -484,6 +484,16 @@ html[data-theme="dark"] .story-card:hover {
   width: 100%;
   border: 2px solid var(--global-divider-color);
   background: var(--global-bg-color);
+  position: relative;
+}
+
+/* Prevent underlines on all buttons */
+button {
+  text-decoration: none !important;
+}
+
+button:hover {
+  text-decoration: none !important;
 }
 
 /* Custom Map Pins */
@@ -623,6 +633,7 @@ html[data-theme="dark"] .story-card:hover {
 }
 
 
+
 .story-item {
   transition: opacity 0.3s ease;
 }
@@ -692,7 +703,7 @@ html[data-theme="dark"] .story-card:hover {
         <div class="year-filters" id="year-filters">
           {% assign current_year = "now" | date: "%Y" | plus: 0 %}
           {% for year in (2015..current_year) reversed %}
-            <button class="filter-btn" data-year="{{ year }}">{{ year }}</button>
+            <button type="button" class="filter-btn" data-year="{{ year }}">{{ year }}</button>
           {% endfor %}
         </div>
       </div>
@@ -703,7 +714,7 @@ html[data-theme="dark"] .story-card:hover {
         {% for story in adventures %}
           {% assign story_year = story.date | date: "%Y" %}
           {% assign story_location = story.location | default: "Unknown" %}
-          {% assign adventure_id = story.title | downcase | replace: ' ', '-' | replace: '[^a-z0-9-]', '' %}
+          {% assign adventure_id = story.title | downcase | replace: ' ', '-' | replace: '(', '' | replace: ')', '' | replace: '&', '' | replace: "'", '' | replace: '"', '' | replace: '!', '' | replace: '?', '' | replace: '.', '' | replace: ',', '' | replace: ':', '' | replace: ';', '' %}
           {% assign story_date_formatted = story.date | date: "%Y-%m-%d" %}
           {% assign adventure_id = adventure_id | append: '-' | append: story_date_formatted %}
           <div class="story-item" data-year="{{ story_year }}" data-location="{{ story_location }}" data-coordinates="{{ story.coordinates }}" data-adventure-id="{{ adventure_id }}" data-adventure-title="{{ story.title }}" data-adventure-date="{{ story.date }}">
@@ -798,9 +809,8 @@ html[data-theme="dark"] .story-card:hover {
 <canvas id="color-extraction-canvas" style="display: none;"></canvas>
 
 {% if adventures.size > 0 %}
-<!-- Leaflet JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/leaflet@{{ site.third_party_libraries.leaflet.version }}/dist/leaflet.min.js"
-        integrity="{{ site.third_party_libraries.leaflet.integrity.js }}" crossorigin="anonymous"></script>
+<!-- Leaflet JavaScript (Local) -->
+<script src="{{ '/assets/js/leaflet/dist/leaflet.min.js' | relative_url }}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -956,6 +966,43 @@ document.addEventListener('DOMContentLoaded', function() {
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
+      
+      // Add custom recenter control
+      const RecenterControl = L.Control.extend({
+        options: {
+          position: 'topleft'
+        },
+        
+        onAdd: function(map) {
+          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+          const button = L.DomUtil.create('a', '', container);
+          button.href = '#';
+          button.title = 'Reset map to US view';
+          button.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>';
+          button.style.display = 'flex';
+          button.style.alignItems = 'center';
+          button.style.justifyContent = 'center';
+          button.style.width = '30px';
+          button.style.height = '30px';
+          button.style.lineHeight = '30px';
+          button.style.textDecoration = 'none';
+          
+          L.DomEvent.on(button, 'click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            recenterMap();
+          });
+          
+          // Prevent map interactions on the control
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+          
+          return container;
+        }
+      });
+      
+      // Add the control to the map
+      map.addControl(new RecenterControl());
       
       // Add zoom event listener only once
       map.on('zoomend', function() {
@@ -1167,7 +1214,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const adventureCount = group.adventuresList.length;
     
     // Track map marker interaction
-    trackEvent('map-marker-click', {
+    const locationId = group.location.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);
+    trackEvent(`map-${locationId}`, {
       location: group.location,
       photoCount: group.photos.length,
       adventureCount: adventureCount
@@ -1371,15 +1419,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Filter functions
   function filterByYear(year) {
-    // Clear any adventure selection when manually selecting year
-    if (selectedAdventureId) {
-      deselectAdventure();
-      return; // Exit early since deselectAdventure handles everything
-    }
-    
     const yearButtons = document.querySelectorAll('[data-year]');
     const clickedButton = document.querySelector(`[data-year="${year}"]`);
     
+    // If an adventure is selected, we need different behavior
+    if (selectedAdventureId) {
+      // Store current map bounds before clearing adventure
+      const currentBounds = map.getBounds();
+      const currentZoom = map.getZoom();
+      const currentCenter = map.getCenter();
+      
+      // Clear adventure selection but keep map position
+      document.querySelectorAll('.story-item.selected').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Clear adventure-specific state
+      selectedAdventureId = null;
+      activeAdventureFilter = null;
+      
+      // Clear URL
+      programmaticHashChange = true;
+      window.location.hash = '';
+      setTimeout(() => { programmaticHashChange = false; }, 100);
+      
+      // If clicking the same year that was active, show all years
+      if (clickedButton.classList.contains('active')) {
+        // Show all years at current map location
+        yearButtons.forEach(btn => btn.classList.remove('active'));
+        activeYearFilter = null;
+        
+        // Track year filter removal
+        trackEvent(`yr-off-${year}`, { year: year });
+      } else {
+        // Switch to the new year
+        yearButtons.forEach(btn => btn.classList.remove('active'));
+        clickedButton.classList.add('active');
+        activeYearFilter = year;
+        
+        // Track year filter selection
+        trackEvent(`yr-on-${year}`, { year: year });
+      }
+      
+      // Redraw markers and filter to current map view
+      drawMarkers();
+      setTimeout(() => {
+        // Restore the map position
+        map.setView(currentCenter, currentZoom);
+        filterToMapView();
+      }, 100);
+      
+      return;
+    }
+    
+    // Normal year filter behavior (no adventure selected)
     // Don't reset location filter - keep current map position
     
     // Toggle button state - if already active, deactivate (show all)
@@ -1389,7 +1482,7 @@ document.addEventListener('DOMContentLoaded', function() {
       activeYearFilter = null;
       
       // Track year filter removal
-      trackEvent('year-filter-removed', { year: year });
+      trackEvent(`yr-off-${year}`, { year: year });
       
       // Redraw map with all adventures at current position
       drawMarkers();
@@ -1406,7 +1499,7 @@ document.addEventListener('DOMContentLoaded', function() {
       activeYearFilter = year;
       
       // Track year filter selection
-      trackEvent('year-filter-selected', { year: year });
+      trackEvent(`yr-on-${year}`, { year: year });
       
       // Redraw map with only adventures from the selected year at current position
       drawMarkers();
@@ -1420,9 +1513,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Event listeners for year filters
   document.querySelectorAll('.filter-btn[data-year]').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(e) {
+      e.preventDefault(); // Prevent default button behavior
       const year = this.getAttribute('data-year');
+      
+      // Store current scroll position
+      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      
       filterByYear(year);
+      
+      // Restore scroll position after a brief delay to ensure DOM updates are complete
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 50);
     });
   });
 
@@ -1487,7 +1590,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
     // Track direct adventure access
-    trackEvent('adventure-direct-access', {
+    const adventureSlug = adventureId.substring(0, 30);
+    trackEvent(`adv-link-${adventureSlug}`, {
       adventureId: adventureId,
       adventureTitle: targetAdventure.title,
       adventureYear: adventureYear
@@ -1526,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
     // Track filter clear
-    trackEvent('adventure-filter-cleared');
+    trackEvent('adv-clear');
   }
   
   // Adventure selection state
@@ -1605,7 +1709,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Track selection
-    trackEvent('adventure-selected', {
+    const adventureSlug = adventureId.substring(0, 30);
+    trackEvent(`adv-on-${adventureSlug}`, {
       adventureId: adventureId,
       adventureTitle: adventureTitle
     });
@@ -1646,7 +1751,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
     // Track deselection
-    trackEvent('adventure-deselected');
+    trackEvent('adv-off');
   }
   
   // Add click event listeners to all story cards
@@ -1657,7 +1762,15 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
+      // Store current scroll position
+      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      
       handleAdventureCardClick(this);
+      
+      // Restore scroll position
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 50);
     });
   });
   
@@ -1665,7 +1778,16 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.deselect-button').forEach(button => {
     button.addEventListener('click', function(e) {
       e.stopPropagation(); // Prevent triggering the story card click
+      
+      // Store current scroll position
+      const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      
       deselectAdventure();
+      
+      // Restore scroll position
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 50);
     });
   });
   
@@ -1683,7 +1805,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!observedAdventures.has(adventureId)) {
           observedAdventures.add(adventureId);
           
-          trackEvent('adventure-impression', {
+          const adventureSlug = adventureId.substring(0, 30);
+          trackEvent(`adv-view-${adventureSlug}`, {
             adventureId: adventureId,
             adventureTitle: adventureTitle ? adventureTitle.substring(0, 50) : 'Unknown',
             adventureYear: adventureYear
@@ -1720,6 +1843,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Recenter map button
+  function recenterMap() {
+    // Store current scroll position
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Clear any adventure selection
+    if (selectedAdventureId) {
+      deselectAdventure();
+    } else {
+      // Just clear year filter and reset map
+      activeYearFilter = null;
+      document.querySelectorAll('[data-year]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Reset map to default US view
+      const isMobile = window.innerWidth <= 768;
+      const resetZoom = isMobile ? 3 : 4;
+      map.setView([39.8283, -98.5795], resetZoom);
+      currentZoomLevel = resetZoom;
+      
+      // Redraw markers for national view
+      setTimeout(() => {
+        drawMarkers();
+        filterToMapView();
+      }, 100);
+    }
+    
+    // Restore scroll position
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition);
+    }, 150);
+    
+    // Track recenter event
+    trackEvent('map-recenter');
+  }
+  
   // Initialize everything
   if (typeof L !== 'undefined') {
     initMap();
@@ -1731,7 +1891,7 @@ document.addEventListener('DOMContentLoaded', function() {
     applyPhotoFocus();
     
     // Track adventures page load
-    trackEvent('adventures-page-loaded', {
+    trackEvent('adv-page-load', {
       totalStories: adventures.length,
       totalPhotos: photoLocations.length
     });
@@ -1987,7 +2147,8 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       
       // Track photo view event
-      trackEvent('photo-view', {
+      const imageId = imageName.replace(/\.[^/.]+$/, '').substring(0, 30); // Remove extension and limit length
+      trackEvent(`img-${imageId}`, {
         image: imageName,
         caption: caption
       });
@@ -2017,7 +2178,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Track modal close event
-    trackEvent('photo-modal-close');
+    trackEvent('img-close');
   }
   
   modalClose.addEventListener('click', closeModal);

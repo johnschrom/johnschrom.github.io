@@ -11,8 +11,9 @@ nav_order: 1
 
 <!-- Bibsearch Feature -->
 
-{% include bib_search.liquid %}
+Below are research products, including journal articles, oral presentations, and poster presentations, that I have been involved with, arranged in reverse chronological order. All items listed here were either peer reviewed or invited. Use the search box below to filter articles by type (article, oral, poster), co-author, title, or abstract.
 
+{% include bib_search.liquid %}
 
 <div class="publications">
 
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const publicationCount = document.querySelectorAll('.bibliography > li').length;
   
   // Track research page load
-  trackEvent('research-page-loaded', {
+  trackEvent('res-page-load', {
     totalPublications: publicationCount
   });
 });

@@ -6,8 +6,8 @@ layout: default
 .pdf-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  height: calc(100vh - 60px);
+  min-height: 1000px;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
@@ -17,57 +17,33 @@ layout: default
 .pdf-header {
   background: #fff;
   border-bottom: 1px solid #ddd;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  padding: 1rem 1.5rem;
+  text-align: left;
 }
 
 .pdf-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
   color: #333;
+  line-height: 1.3;
 }
 
-.pdf-controls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-
-.pdf-button {
-  background: var(--global-theme-color);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
+.pdf-authors {
   font-size: 0.9rem;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s ease;
+  color: #666;
+  margin-bottom: 0.25rem;
 }
 
-.pdf-button:hover {
-  background: var(--global-hover-color);
-  color: white;
-  text-decoration: none;
+.pdf-venue {
+  font-size: 0.85rem;
+  color: #666;
 }
 
-.pdf-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
 
 .pdf-viewer-container {
   width: 100%;
-  height: calc(100% - 70px);
+  height: calc(100% - 90px);
   background: white;
   overflow: auto;
   position: relative;
@@ -77,43 +53,102 @@ layout: default
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   padding: 0.5rem;
   background: #f8f9fa;
   border-bottom: 1px solid #ddd;
 }
 
-.pdf-toolbar button {
+.toolbar-btn {
   background: #fff;
   border: 1px solid #ddd;
-  padding: 0.5rem;
+  padding: 0;
+  width: 36px;
+  height: 36px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.pdf-toolbar button:hover {
+.toolbar-btn:hover {
   background: #e9ecef;
+  border-color: #adb5bd;
 }
 
-.pdf-toolbar button:disabled {
+.toolbar-btn:disabled {
   background: #f8f9fa;
   color: #6c757d;
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.toolbar-btn i {
+  font-size: 1rem;
+  color: #495057;
+}
+
+.toolbar-btn:disabled i {
+  color: #6c757d;
+}
+
+.toolbar-info {
+  font-size: 0.9rem;
+  color: #495057;
+  min-width: 80px;
+  text-align: center;
+}
+
+.toolbar-separator {
+  color: #ddd;
+  margin: 0 0.25rem;
+  font-size: 1rem;
+}
+
+.toolbar-link {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.toolbar-link:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  text-decoration: none;
+}
+
+.toolbar-link i {
+  font-size: 1rem;
+  color: #495057;
+}
+
+.toolbar-icon {
+  /* Already styled by toolbar-link */
 }
 
 .pdf-canvas-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
-  gap: 1rem;
+  padding: 0.5rem;
+  gap: 0.5rem;
 }
 
 .pdf-page {
   border: 1px solid #ddd;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .pdf-error {
@@ -127,7 +162,7 @@ layout: default
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100% - 70px);
+  height: calc(100% - 90px);
   color: #666;
   flex-direction: column;
   gap: 1rem;
@@ -149,61 +184,74 @@ layout: default
 
 @media (max-width: 768px) {
   .pdf-container {
-    height: calc(100vh - 150px);
-    min-height: 500px;
+    height: calc(100vh - 50px);
+    min-height: 800px;
   }
   
   .pdf-header {
     padding: 0.75rem;
-    flex-direction: column;
-    align-items: stretch;
   }
   
-  .pdf-controls {
-    justify-content: center;
+  .pdf-title {
+    font-size: 1.3rem;
   }
   
+  .pdf-authors {
+    font-size: 1rem;
+  }
   
-  .pdf-button {
-    padding: 0.75rem 1rem;
+  .pdf-venue {
+    font-size: 0.9rem;
   }
   
   .pdf-toolbar {
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
   
-  .pdf-toolbar button {
-    padding: 0.25rem 0.5rem;
+  .toolbar-btn,
+  .toolbar-link {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .toolbar-btn i,
+  .toolbar-link i {
+    font-size: 0.9rem;
+  }
+  
+  .toolbar-info {
     font-size: 0.8rem;
+    min-width: 70px;
+  }
+  
+  .toolbar-separator {
+    margin: 0 0.25rem;
   }
 }
 </style>
 
 <div class="post">
-  <header class="post-header">
-    <h1 class="post-title">{{ page.title }}</h1>
-    
-    {% if page.authors %}
-      <div class="authors" style="font-size: 1.1rem; margin-bottom: 0.5rem; color: #666;">
-        {% assign author_list = page.authors | split: ', ' %}
-        {% for author in author_list %}
-          {% if author contains 'John Schrom' %}
-            <u>{{ author }}</u>{% unless forloop.last %}, {% endunless %}
-          {% else %}
-            {{ author }}{% unless forloop.last %}, {% endunless %}
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% endif %}
-    
-  </header>
-
   <article>
     {% if page.pdf_url %}
     <div class="pdf-container">
       <div class="pdf-header">
-        <h2 class="pdf-title">
+        <h1 class="pdf-title">{{ page.title }}</h1>
+        
+        {% if page.authors %}
+          <div class="pdf-authors">
+            {% assign author_list = page.authors | split: ', ' %}
+            {% for author in author_list %}
+              {% if author contains 'John Schrom' %}
+                <u>{{ author }}</u>{% unless forloop.last %}, {% endunless %}
+              {% else %}
+                {{ author }}{% unless forloop.last %}, {% endunless %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+        
+        <div class="pdf-venue">
           {% if page.document_type == 'Poster' %}
             Poster Presentation at <em>{{ page.venue }}</em>{% if page.year %} ({{ page.year }}){% endif %}
           {% elsif page.document_type == 'Slides' %}
@@ -215,16 +263,6 @@ layout: default
             {% if page.venue and page.year %}, {% endif %}
             {% if page.year %}{{ page.year }}{% endif %}
           {% endif %}
-        </h2>
-        <div class="pdf-controls">
-          <a href="{{ page.pdf_url }}" class="pdf-button" download>
-            <i class="fas fa-download"></i>
-            Download PDF
-          </a>
-          <a href="{{ page.pdf_url }}" class="pdf-button" target="_blank">
-            <i class="fas fa-external-link-alt"></i>
-            Open in New Tab
-          </a>
         </div>
       </div>
       
@@ -235,13 +273,31 @@ layout: default
       
       <div class="pdf-viewer-container" id="pdf-viewer-container" style="display: none;">
         <div class="pdf-toolbar">
-          <button id="prev-page" title="Previous Page">⬅️ Prev</button>
-          <span id="page-info">Page 1 of 1</span>
-          <button id="next-page" title="Next Page">Next ➡️</button>
-          <button id="zoom-out" title="Zoom Out">🔍-</button>
-          <span id="zoom-info">100%</span>
-          <button id="zoom-in" title="Zoom In">🔍+</button>
-          <button id="fit-width" title="Fit Width">↔️ Fit Width</button>
+          <button id="zoom-out" class="toolbar-btn" title="Zoom Out">
+            <i class="fas fa-search-minus"></i>
+          </button>
+          <span id="zoom-info" class="toolbar-info">100%</span>
+          <button id="zoom-in" class="toolbar-btn" title="Zoom In">
+            <i class="fas fa-search-plus"></i>
+          </button>
+          <button id="fit-width" class="toolbar-btn" title="Fit to Width">
+            <i class="fas fa-arrows-alt-h"></i>
+          </button>
+          <span class="toolbar-separator">|</span>
+          <button id="prev-page" class="toolbar-btn" title="Previous Page">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span id="page-info" class="toolbar-info">Page 1 of 1</span>
+          <button id="next-page" class="toolbar-btn" title="Next Page">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <span class="toolbar-separator">|</span>
+          <a href="{{ page.pdf_url }}" id="download-btn" class="toolbar-link toolbar-icon" download title="Download PDF">
+            <i class="fas fa-download"></i>
+          </a>
+          <a href="{{ page.pdf_url }}" id="open-btn" class="toolbar-link toolbar-icon" target="_blank" title="Open in New Tab">
+            <i class="fas fa-external-link-alt"></i>
+          </a>
         </div>
         <div class="pdf-canvas-container" id="pdf-canvas-container">
           <!-- PDF pages will be rendered here -->
@@ -282,19 +338,21 @@ layout: default
         // Update page elements if we have URL parameters
         if (pdfFromUrl && titleFromUrl) {
           document.title = titleFromUrl + ' - {{ site.title }}';
-          const pageTitle = document.querySelector('.post-title');
           const pdfTitleElement = document.querySelector('.pdf-title');
-          if (pageTitle) pageTitle.textContent = titleFromUrl;
           if (pdfTitleElement) pdfTitleElement.textContent = titleFromUrl;
           
-          // Update download links
-          const downloadLinks = document.querySelectorAll('a[href="{{ page.pdf_url }}"]');
-          downloadLinks.forEach(link => link.href = pdfUrl);
+          // Update download and open links in toolbar
+          const downloadBtn = document.getElementById('download-btn');
+          const openBtn = document.getElementById('open-btn');
+          if (downloadBtn) downloadBtn.href = pdfUrl;
+          if (openBtn) openBtn.href = pdfUrl;
         }
         
         // Track PDF view with Umami if available
         if (typeof umami !== 'undefined' && pdfUrl) {
-          umami.track('PDF View', { 
+          // Create a slug from the PDF title for the event name
+          const pdfSlug = pdfTitle.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30);
+          umami.track(`pdf-${pdfSlug}`, { 
             pdf: pdfTitle,
             url: pdfUrl 
           });
@@ -313,11 +371,7 @@ layout: default
         let pageRendering = false;
         let pageNumPending = null;
         
-        // Mobile responsiveness
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
-          scale = 0.8; // Start smaller on mobile
-        }
+        // Scale will be set by autoFitWidth()
         
         // UI elements
         const prevButton = document.getElementById('prev-page');
@@ -366,7 +420,7 @@ layout: default
         
         function onFitWidth() {
           // Calculate scale to fit page width to container
-          const containerWidth = pdfCanvasContainer.clientWidth - 32; // Account for padding
+          const containerWidth = pdfCanvasContainer.clientWidth - 16; // Account for padding
           pdfDoc.getPage(currentPage).then(page => {
             const viewport = page.getViewport({ scale: 1.0 });
             scale = containerWidth / viewport.width;
@@ -376,7 +430,7 @@ layout: default
         
         function autoFitWidth() {
           // Auto-fit width on initial load
-          const containerWidth = pdfCanvasContainer.clientWidth - 32; // Account for padding
+          const containerWidth = pdfCanvasContainer.clientWidth - 16; // Account for padding
           return pdfDoc.getPage(1).then(page => {
             const viewport = page.getViewport({ scale: 1.0 });
             scale = containerWidth / viewport.width;

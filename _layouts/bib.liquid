@@ -396,13 +396,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Don't track if it's a toggle button (like Abstract, Bib)
         if (!href || href === '#') {
-          trackEvent('publication-toggle', {
+          const pubId = '{{ entry.key }}'.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);
+          trackEvent(`pub-${linkType}-${pubId}`, {
             publicationId: '{{ entry.key }}',
             toggleType: linkType,
             title: '{{ entry.title | truncate: 50 }}'
           });
         } else {
-          trackEvent('publication-link-click', {
+          const pubId = '{{ entry.key }}'.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);
+          trackEvent(`link-${linkType}-${pubId}`, {
             publicationId: '{{ entry.key }}',
             linkType: linkType,
             title: '{{ entry.title | truncate: 50 }}',
@@ -416,7 +418,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const badges = publicationEntry.querySelectorAll('span[class*="badge"], .badges a');
     badges.forEach(badge => {
       badge.addEventListener('click', function() {
-        trackEvent('publication-badge-click', {
+        const pubId = '{{ entry.key }}'.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);
+        const badgeType = (this.className || 'unknown').replace(/[^a-zA-Z0-9]/g, '-').substring(0, 10);
+        trackEvent(`badge-${badgeType}-${pubId}`, {
           publicationId: '{{ entry.key }}',
           badgeType: this.className || 'unknown',
           title: '{{ entry.title | truncate: 50 }}'
@@ -445,7 +449,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Track share event
-        trackEvent('publication-share', {
+        const pubId = articleKey.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);
+        trackEvent(`share-${pubId}`, {
           publicationId: articleKey,
           title: '{{ entry.title | truncate: 50 }}'
         });

@@ -23,7 +23,9 @@ if (pdfUrl) {
   
   // Track with Umami
   if (typeof umami !== 'undefined') {
-    umami.track('PDF View', { 
+    // Create a slug from the PDF title for the event name
+    const pdfSlug = pdfTitle.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30);
+    umami.track(`pdf-${pdfSlug}`, { 
       pdf: pdfTitle,
       url: pdfUrl 
     });
