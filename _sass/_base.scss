@@ -23,15 +23,16 @@ strong {
 .site-footer {
   background-color: var(--global-bg-color);
   border-top: 1px solid var(--global-divider-color);
+  border-bottom: 1px solid var(--global-divider-color);
   margin-top: 4rem;
-  padding: 3rem 0 2rem;
+  padding: 3rem 0 3rem;
+  vertical-align: middle;
   
   .footer-content {
     text-align: center;
   }
   
   .contact-section {
-    margin-bottom: 2rem;
     
     h3 {
       color: var(--global-text-color);
@@ -86,6 +87,18 @@ strong {
       font-size: 0.875rem;
       margin: 0;
     }
+  }
+}
+
+.copyright {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  
+  p {
+    color: var(--global-text-color-light);
+    font-size: 0.75rem;
+    margin: 0;
+    text-align: center;
   }
 }
 
