@@ -1533,10 +1533,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // Direct adventure linking support
   function handleDirectAdventureLink() {
     const hashValue = decodeURIComponent(window.location.hash.substring(1));
+    const hashParts = hashValue.split('&');
     
-    if (hashValue.startsWith('adventure:')) {
-      const adventureId = hashValue.substring(10); // Remove 'adventure:' prefix
+    // Find adventure part
+    let adventureId = null;
+    for (const part of hashParts) {
+      if (part.startsWith('adventure:')) {
+        adventureId = part.substring(10); // Remove 'adventure:' prefix
+        break;
+      }
+    }
+    
+    if (adventureId) {
       filterToSingleAdventure(adventureId);
+      
+      // After adventure is loaded, check if there's also an image to show
+      setTimeout(() => {
+        // Check if there's an image part and handle it
+        const hasImagePart = hashParts.some(part => part.startsWith('image:'));
+        if (hasImagePart) {
+          handleImageUrlHash();
+        }
+      }, 300); // Give time for adventure to load
     }
   }
   
@@ -1926,6 +1944,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Photo Modal JavaScript -->
 <script>
+// Global function to handle URL hash for loading specific images
+function handleImageUrlHash() {
+  const hashValue = decodeURIComponent(window.location.hash.substring(1));
+  
+  // Parse hash parts (could be "image:filename" or "adventure:id&image:filename")
+  const hashParts = hashValue.split('&');
+  let imageName = null;
+  
+  // Look for image part in hash
+  for (const part of hashParts) {
+    if (part.startsWith('image:')) {
+      imageName = part.substring(6); // Remove 'image:' prefix
+      break;
+    }
+  }
+  
+  if (imageName) {
+    // Find the photo container with this image
+    const photoContainer = document.querySelector(`[data-image="${imageName}"]`);
+    if (photoContainer) {
+      const caption = photoContainer.getAttribute('data-caption');
+      const longCaption = photoContainer.getAttribute('data-long-caption');
+      
+      // Get modal elements
+      const modal = document.getElementById('photo-modal');
+      const modalImage = document.getElementById('photo-modal-image');
+      const modalCaption = document.getElementById('photo-modal-caption');
+      
+      if (modal && modalImage && modalCaption) {
+        // Use the global openPhotoModal function if available, otherwise call directly
+        if (typeof openPhotoModal === 'function') {
+          openPhotoModal(imageName, caption, longCaption);
+        } else {
+          // Fallback: directly open modal
+          modal.dataset.scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+          const highResPath = `/assets/img/adventures/${imageName}`;
+          modalImage.src = highResPath;
+          modalImage.alt = caption;
+          modalCaption.textContent = longCaption || caption;
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const modal = document.getElementById('photo-modal');
   const modalImage = document.getElementById('photo-modal-image');
@@ -2045,6 +2110,117 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Global function to open photo modal with specific image
+  window.openPhotoModal = function(imageName, caption, longCaption) {
+    // Store scroll position when modal opens
+    modal.dataset.scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Load high-res image
+    const highResPath = `/assets/img/adventures/${imageName}`;
+    modalImage.src = highResPath;
+    modalImage.alt = caption;
+      
+    // Clear caption initially
+    modalCaption.textContent = '';
+    
+    // Reset caption styling to default
+    modalCaption.style.background = 'white';
+    modalCaption.style.color = '#333333';
+    modalCaption.style.backdropFilter = '';
+    
+    // Extract colors when image loads
+    modalImage.onload = function() {
+        
+      // Set caption width to match image width
+      const updateCaptionWidth = () => {
+        const imageWidth = modalImage.clientWidth;
+        modalCaption.style.width = imageWidth + 'px';
+        modalCaption.style.maxWidth = imageWidth + 'px';
+      };
+      
+      updateCaptionWidth();
+      
+      // Update caption width on window resize
+      window.addEventListener('resize', updateCaptionWidth);
+      
+      // Store the resize handler for cleanup
+      modalImage.resizeHandler = updateCaptionWidth;
+      
+      try {
+        // Wait a bit for image to render, then extract colors
+        setTimeout(() => {
+          const sideColors = extractColors(modalImage);
+          const extendedStyle = createExtendedBackground(sideColors);
+          
+          // Apply extended background to modal content
+          const modalContent = document.querySelector('.photo-modal-content');
+          modalContent.style.background = extendedStyle.background;
+          modalContent.style.backdropFilter = extendedStyle.backdropFilter;
+          
+          // Keep modal background dark with blur
+          modal.style.background = 'rgba(0, 0, 0, 0.8)';
+          modal.style.backdropFilter = 'blur(5px)';
+          
+          // Apply text color and background to caption
+          modalCaption.style.setProperty('color', extendedStyle.color, 'important');
+          modalCaption.style.textShadow = extendedStyle.color === '#ffffff' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(255,255,255,0.5)';
+          
+          // Apply a solid version of the background to the caption for consistent scrolling
+          const centerColor = [
+            ...Object.values(sideColors).map(color => color.split(',').map(Number))
+          ].reduce((acc, rgb) => acc.map((val, i) => val + rgb[i]), [0, 0, 0])
+          .map(val => Math.floor(val / 4));
+          
+          modalCaption.style.background = `rgba(${centerColor[0]},${centerColor[1]},${centerColor[2]},0.3)`;
+          
+          // Create a custom CSS rule to ensure text color consistency during scrolling
+          const captionStyleId = 'caption-color-override';
+          let existingStyle = document.getElementById(captionStyleId);
+          if (existingStyle) {
+            existingStyle.remove();
+          }
+          
+          const style = document.createElement('style');
+          style.id = captionStyleId;
+          style.textContent = `
+            .photo-modal-caption {
+              color: ${extendedStyle.color} !important;
+            }
+            .photo-modal-caption::selection {
+              color: ${extendedStyle.color} !important;
+              background: rgba(255, 255, 255, 0.2);
+            }
+          `;
+          document.head.appendChild(style);
+          
+          // Set caption content AFTER applying all styling
+          modalCaption.innerHTML = `<span style="color: ${extendedStyle.color} !important;">${longCaption || caption}</span>`;
+        }, 100);
+      } catch (error) {
+        // Fallback to default styling
+        modal.style.background = 'rgba(0, 0, 0, 0.9)';
+        modal.style.backdropFilter = 'blur(10px)';
+        modalCaption.style.color = '#ffffff';
+        modalCaption.style.textShadow = '0 1px 3px rgba(0,0,0,0.5)';
+        modalCaption.style.background = 'rgba(255, 255, 255, 0.1)';
+        
+        // Set caption content with fallback styling
+        modalCaption.innerHTML = `<span style="color: #ffffff !important;">${longCaption || caption}</span>`;
+      }
+    };
+    
+    // Track photo view event
+    const imageId = imageName.replace(/\.[^/.]+$/, '').substring(0, 30); // Remove extension and limit length
+    trackEvent(`img-${imageId}`, {
+      image: imageName,
+      caption: caption
+    });
+    
+    // Show modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+  }
+  
   // Add click event to all photo containers
   document.querySelectorAll('.photo-container').forEach(container => {
     container.addEventListener('click', function() {
@@ -2052,117 +2228,53 @@ document.addEventListener('DOMContentLoaded', function() {
       const caption = this.getAttribute('data-caption');
       const longCaption = this.getAttribute('data-long-caption');
       
-      // Load high-res image
-      const highResPath = `/assets/img/adventures/${imageName}`;
-      modalImage.src = highResPath;
-      modalImage.alt = caption;
+      // Update URL with image hash, preserving adventure context if present
+      const currentHash = decodeURIComponent(window.location.hash.substring(1));
+      let newHash = `image:${imageName}`;
       
-      // Clear caption initially
-      modalCaption.textContent = '';
+      // If there's already an adventure selected, preserve it
+      if (currentHash.startsWith('adventure:')) {
+        const adventurePart = currentHash.split('&')[0]; // Get adventure part, ignore any existing image part
+        newHash = `${adventurePart}&image:${imageName}`;
+      }
       
-      // Reset caption styling to default
-      modalCaption.style.background = 'white';
-      modalCaption.style.color = '#333333';
-      modalCaption.style.backdropFilter = '';
+      programmaticHashChange = true;
+      window.history.pushState({}, '', window.location.pathname + window.location.search + '#' + newHash);
+      setTimeout(() => { programmaticHashChange = false; }, 100);
       
-      // Extract colors when image loads
-      modalImage.onload = function() {
-        
-        // Set caption width to match image width
-        const updateCaptionWidth = () => {
-          const imageWidth = modalImage.clientWidth;
-          modalCaption.style.width = imageWidth + 'px';
-          modalCaption.style.maxWidth = imageWidth + 'px';
-        };
-        
-        updateCaptionWidth();
-        
-        // Update caption width on window resize
-        window.addEventListener('resize', updateCaptionWidth);
-        
-        // Store the resize handler for cleanup
-        modalImage.resizeHandler = updateCaptionWidth;
-        
-        try {
-          // Wait a bit for image to render, then extract colors
-          setTimeout(() => {
-            const sideColors = extractColors(modalImage);
-            const extendedStyle = createExtendedBackground(sideColors);
-            
-            // Apply extended background to modal content
-            const modalContent = document.querySelector('.photo-modal-content');
-            modalContent.style.background = extendedStyle.background;
-            modalContent.style.backdropFilter = extendedStyle.backdropFilter;
-            
-            // Keep modal background dark with blur
-            modal.style.background = 'rgba(0, 0, 0, 0.8)';
-            modal.style.backdropFilter = 'blur(5px)';
-            
-            // Apply text color and background to caption
-            modalCaption.style.setProperty('color', extendedStyle.color, 'important');
-            modalCaption.style.textShadow = extendedStyle.color === '#ffffff' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(255,255,255,0.5)';
-            
-            // Apply a solid version of the background to the caption for consistent scrolling
-            const centerColor = [
-              ...Object.values(sideColors).map(color => color.split(',').map(Number))
-            ].reduce((acc, rgb) => acc.map((val, i) => val + rgb[i]), [0, 0, 0])
-            .map(val => Math.floor(val / 4));
-            
-            modalCaption.style.background = `rgba(${centerColor[0]},${centerColor[1]},${centerColor[2]},0.3)`;
-            
-            // Create a custom CSS rule to ensure text color consistency during scrolling
-            const captionStyleId = 'caption-color-override';
-            let existingStyle = document.getElementById(captionStyleId);
-            if (existingStyle) {
-              existingStyle.remove();
-            }
-            
-            const style = document.createElement('style');
-            style.id = captionStyleId;
-            style.textContent = `
-              .photo-modal-caption {
-                color: ${extendedStyle.color} !important;
-              }
-              .photo-modal-caption::selection {
-                color: ${extendedStyle.color} !important;
-                background: rgba(255, 255, 255, 0.2);
-              }
-            `;
-            document.head.appendChild(style);
-            
-            // Set caption content AFTER applying all styling
-            modalCaption.innerHTML = `<span style="color: ${extendedStyle.color} !important;">${longCaption || caption}</span>`;
-          }, 100);
-        } catch (error) {
-          // Fallback to default styling
-          modal.style.background = 'rgba(0, 0, 0, 0.9)';
-          modal.style.backdropFilter = 'blur(10px)';
-          modalCaption.style.color = '#ffffff';
-          modalCaption.style.textShadow = '0 1px 3px rgba(0,0,0,0.5)';
-          modalCaption.style.background = 'rgba(255, 255, 255, 0.1)';
-          
-          // Set caption content with fallback styling
-          modalCaption.innerHTML = `<span style="color: #ffffff !important;">${longCaption || caption}</span>`;
-        }
-      };
-      
-      // Track photo view event
-      const imageId = imageName.replace(/\.[^/.]+$/, '').substring(0, 30); // Remove extension and limit length
-      trackEvent(`img-${imageId}`, {
-        image: imageName,
-        caption: caption
-      });
-      
-      // Show modal
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Prevent scrolling
+      // Open modal
+      openPhotoModal(imageName, caption, longCaption);
     });
   });
   
+  
   // Close modal events
   function closeModal() {
+    // Get the stored scroll position from when modal was opened
+    const scrollPosition = parseInt(modal.dataset.scrollPosition) || 0;
+    
     modal.classList.remove('active');
     document.body.style.overflow = ''; // Restore scrolling
+    
+    // Remove image part from hash but preserve adventure context
+    const hashValue = decodeURIComponent(window.location.hash.substring(1));
+    const hashParts = hashValue.split('&');
+    
+    // Filter out image parts but keep adventure parts
+    const remainingParts = hashParts.filter(part => !part.startsWith('image:'));
+    
+    programmaticHashChange = true;
+    if (remainingParts.length > 0) {
+      window.history.replaceState({}, '', window.location.pathname + window.location.search + '#' + remainingParts.join('&'));
+    } else {
+      window.history.replaceState({}, '', window.location.pathname + window.location.search);
+    }
+    setTimeout(() => { programmaticHashChange = false; }, 100);
+    
+    // Restore scroll position after a brief delay to ensure DOM updates are complete
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition);
+    }, 50);
     
     // Clean up resize listener
     if (modalImage.resizeHandler) {
@@ -2196,6 +2308,30 @@ document.addEventListener('DOMContentLoaded', function() {
       closeModal();
     }
   });
+  
+  // Handle hash changes for image URLs
+  window.addEventListener('hashchange', function() {
+    // Skip if this was a programmatic change from our click handlers
+    if (programmaticHashChange) {
+      return;
+    }
+    
+    const hashValue = decodeURIComponent(window.location.hash.substring(1));
+    const hashParts = hashValue.split('&');
+    
+    // Check if there's an image part in the hash
+    const hasImagePart = hashParts.some(part => part.startsWith('image:'));
+    
+    if (hasImagePart) {
+      handleImageUrlHash();
+    } else if (modal.classList.contains('active')) {
+      // No image part in hash but modal is open, close it
+      closeModal();
+    }
+  });
+  
+  // Check for image URL hash on page load
+  handleImageUrlHash();
 });
 </script>
 {% endif %}
