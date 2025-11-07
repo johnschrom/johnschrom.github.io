@@ -9,95 +9,209 @@ layout: default
 {% endif %}
 
 <style>
-.photography-gallery {
+.photography-container {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
   margin-top: 2rem;
+  padding-bottom: 0;
+  border-top: 3px solid var(--global-divider-color);
+  overflow: hidden;
 }
 
 .photo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+  margin: 2rem 0;
+  padding: 0;
 }
 
 .photo-item {
+  width: calc(33.333% - 4px);
+  margin-bottom: 2px;
+  padding: 0;
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
-}
-
-.photo-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.photo-item figure {
-  margin: 0;
-  padding: 0;
+  transition: all 0.2s ease;
+  display: block;
+  vertical-align: top;
 }
 
 .photo-item img {
   width: 100%;
-  height: 300px;
-  object-fit: cover;
+  height: auto;
   display: block;
+  transition: all 0.2s ease;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: top;
 }
 
-.photo-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
-  color: white;
-  padding: 1.5rem;
+.photo-item:hover {
+  transform: scale(1.01);
+}
+
+
+/* Photo Modal Styles */
+.photo-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(5px);
+}
+
+.photo-modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.photo-modal-content {
+  max-width: 95vw;
+  max-height: 95vh;
+  width: auto;
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  padding: 2rem 2rem 1rem 2rem;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.photo-item:hover .photo-overlay {
-  opacity: 1;
+.photo-modal-image {
+  max-width: 91vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  background: #f8f9fa;
+  display: block;
+  position: relative;
 }
 
-.photo-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  letter-spacing: 0.01em;
+.photo-modal-caption {
+  padding: 0.5rem 1rem 1rem 1rem;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-height: 30vh;
+  width: auto;
+  max-width: none;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  margin-top: 0.5rem;
+  flex-shrink: 1;
+  min-height: 0;
+  display: block;
+  white-space: normal;
+  position: relative;
+  
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.3) transparent;
 }
 
-.photo-description {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
+.photo-modal-caption::-webkit-scrollbar {
+  width: 6px;
 }
 
-.photo-meta {
-  font-size: 0.75rem;
-  opacity: 0.9;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  display: inline-block;
-  width: fit-content;
+.photo-modal-caption::-webkit-scrollbar-track {
+  background: transparent;
 }
 
+.photo-modal-caption::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.3);
+  border-radius: 3px;
+}
+
+.photo-modal-caption::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.5);
+}
+
+.photo-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.photo-modal-close:hover {
+  background: rgba(0, 0, 0, 0.95);
+  transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .photo-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .photo-item {
+    width: 50%;
+    margin-bottom: 2px;
   }
   
-  .photo-item img {
-    height: 250px;
+  .photo-modal-content {
+    padding: 1.5rem;
+    max-width: 98vw;
+    max-height: 95vh;
   }
+  
+  .photo-modal-image {
+    max-width: 94vw;
+    max-height: 75vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-item {
+    width: 100%;
+    margin-bottom: 2px;
+  }
+}
+
+/* Dark mode adjustments */
+
+html[data-theme="dark"] .photo-item {
+  background: var(--global-bg-color);
+  border-color: var(--global-divider-color);
+}
+
+html[data-theme="dark"] .photo-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 </style>
 
@@ -109,39 +223,229 @@ layout: default
 
   <article>
     {{ content }}
-    
-    {% if page.photos %}
-    <div class="photography-gallery">
-      <div class="photo-grid">
-        {% for photo in page.photos %}
-          <div class="photo-item" data-zoomable>
-            {% assign photo_path = '/assets/img/photography/' | append: page.photo_category | append: '/' | append: photo.image %}
-            {% include figure.liquid 
-              path=photo_path 
-              class="photo-image"
-              zoomable=true
-            %}
-            {% if photo.title or photo.description or photo.camera or photo.settings %}
-            <div class="photo-overlay">
-              {% if photo.title and photo.title != '' %}
-                <div class="photo-title">{{ photo.title }}</div>
-              {% endif %}
-              {% if photo.description and photo.description != '' %}
-                <div class="photo-description">{{ photo.description }}</div>
-              {% endif %}
-              {% if photo.camera or photo.settings %}
-                <div class="photo-meta">
-                  {% if photo.camera %}{{ photo.camera }}{% endif %}
-                  {% if photo.camera and photo.settings %} • {% endif %}
-                  {% if photo.settings %}{{ photo.settings }}{% endif %}
-                </div>
-              {% endif %}
-            </div>
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-    {% endif %}
   </article>
 </div>
+
+<!-- Full-width photography section outside container -->
+<div class="photography-container">
+  <div class="photo-grid" id="photo-grid">
+        {% assign photography_path = '/assets/img/photography/' %}
+        {% assign image_extensions = 'jpg,jpeg,png,gif,webp,JPG,JPEG,PNG,GIF,WEBP' | split: ',' %}
+        
+        {% comment %} Collect and sort all photography images {% endcomment %}
+        {% assign photo_files = '' | split: '' %}
+        {% for static_file in site.static_files %}
+          {% if static_file.path contains '/assets/img/photography/' %}
+            {% assign file_extension = static_file.path | split: '.' | last %}
+            {% if image_extensions contains file_extension %}
+              {% assign photo_files = photo_files | push: static_file %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        
+        {% comment %} Sort photos by filename (which includes year) {% endcomment %}
+        {% assign sorted_photos = photo_files | sort: 'basename' | reverse %}
+        
+        {% for photo_file in sorted_photos %}
+          {% assign filename = photo_file.basename %}
+          {% assign full_path = photo_file.path %}
+          
+          {% comment %} Extract year and subject from filename {% endcomment %}
+          {% assign filename_parts = filename | split: '-' %}
+          {% assign year = filename_parts[0] %}
+          {% assign subject_parts = filename_parts | slice: 1, 10 %}
+          {% assign subject = subject_parts | join: ' ' | replace: '_', ' ' | capitalize %}
+          
+          <div class="photo-item" 
+               data-image="{{ filename }}{{ photo_file.extname }}"
+               data-title="{{ subject }}"
+               data-year="{{ year }}"
+               data-filename="{{ filename }}{{ photo_file.extname }}">
+            <img src="{{ full_path | relative_url }}" 
+                 alt="{{ subject }}"
+                 loading="lazy">
+          </div>
+        {% endfor %}
+  </div>
+</div>
+
+<!-- Photo Modal -->
+<div id="photo-modal" class="photo-modal">
+  <div class="photo-modal-content">
+    <div class="photo-modal-image-container" style="position: relative; display: inline-block;">
+      <img id="photo-modal-image" class="photo-modal-image" src="" alt="">
+      <button class="photo-modal-close" id="photo-modal-close">&times;</button>
+    </div>
+    <div id="photo-modal-caption" class="photo-modal-caption"></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('photo-modal');
+  const modalImage = document.getElementById('photo-modal-image');
+  const modalCaption = document.getElementById('photo-modal-caption');
+  const modalClose = document.getElementById('photo-modal-close');
+  
+  // Initialize Masonry layout
+  const grid = document.querySelector('.photo-grid');
+  let msnry;
+  
+  // Wait for all images to load before initializing Masonry
+  const images = grid.querySelectorAll('img');
+  let loadedImages = 0;
+  
+  function checkAllImagesLoaded() {
+    loadedImages++;
+    if (loadedImages === images.length) {
+      // All images loaded, initialize Masonry
+      msnry = new Masonry(grid, {
+        itemSelector: '.photo-item',
+        columnWidth: '.photo-item',
+        gutter: 2,
+        percentPosition: true
+      });
+    }
+  }
+  
+  // Add load event listener to each image
+  images.forEach(img => {
+    if (img.complete) {
+      checkAllImagesLoaded();
+    } else {
+      img.addEventListener('load', checkAllImagesLoaded);
+    }
+  });
+  
+  // Function to extract metadata and create caption
+  async function formatPhotoCaption(title, year, filename, imagePath) {
+    let caption = `<strong>${title}</strong><br>`;
+    caption += `Captured in ${year}<br>`;
+    
+    // Try to extract EXIF data if available
+    try {
+      const img = new Image();
+      img.src = imagePath;
+      
+      // Get image dimensions
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+      
+      caption += `<br><strong>Technical Details:</strong><br>`;
+      caption += `Resolution: ${img.naturalWidth} × ${img.naturalHeight} pixels<br>`;
+      
+      // Add file info
+      const response = await fetch(imagePath, { method: 'HEAD' });
+      if (response.ok) {
+        const contentLength = response.headers.get('content-length');
+        if (contentLength) {
+          const sizeInMB = (parseInt(contentLength) / 1024 / 1024).toFixed(1);
+          caption += `File size: ${sizeInMB} MB<br>`;
+        }
+      }
+    } catch (error) {
+      console.log('Could not extract technical details:', error);
+    }
+    
+    caption += `<br><em>${filename}</em>`;
+    return caption;
+  }
+  
+  // Function to open photo modal
+  async function openPhotoModal(imagePath, title, year, filename) {
+    modal.dataset.scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    modalImage.src = imagePath;
+    modalImage.alt = title;
+    
+    // Show loading state
+    modalCaption.innerHTML = 'Loading image details...';
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Update URL hash for direct linking
+    const imageParam = filename.replace(/\.[^/.]+$/, ''); // Remove extension
+    window.history.pushState({}, '', window.location.pathname + window.location.search + '#photo:' + imageParam);
+    
+    // Load caption with metadata
+    try {
+      const caption = await formatPhotoCaption(title, year, filename, imagePath);
+      modalCaption.innerHTML = caption;
+    } catch (error) {
+      // Fallback to basic caption
+      modalCaption.innerHTML = `<strong>${title}</strong><br>Captured in ${year}<br><br><em>${filename}</em>`;
+    }
+  }
+  
+  // Add click event to all photo items
+  document.querySelectorAll('.photo-item').forEach(item => {
+    item.addEventListener('click', async function() {
+      const imageName = this.getAttribute('data-image');
+      const title = this.getAttribute('data-title');
+      const year = this.getAttribute('data-year');
+      const filename = this.getAttribute('data-filename');
+      const imagePath = `/assets/img/photography/${imageName}`;
+      
+      await openPhotoModal(imagePath, title, year, filename);
+    });
+  });
+  
+  // Close modal functions
+  function closeModal() {
+    const scrollPosition = parseInt(modal.dataset.scrollPosition) || 0;
+    
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Remove photo hash from URL
+    window.history.replaceState({}, '', window.location.pathname + window.location.search);
+    
+    setTimeout(() => {
+      window.scrollTo(0, scrollPosition);
+    }, 50);
+  }
+  
+  modalClose.addEventListener('click', closeModal);
+  
+  // Close when clicking outside the image
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+  
+  // Close with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeModal();
+    }
+  });
+  
+  // Handle direct photo links via URL hash
+  function handlePhotoHash() {
+    const hash = window.location.hash.substring(1);
+    if (hash.startsWith('photo:')) {
+      const photoId = hash.substring(6); // Remove 'photo:' prefix
+      const photoItem = document.querySelector(`[data-image*="${photoId}"]`);
+      if (photoItem) {
+        photoItem.click();
+      }
+    }
+  }
+  
+  // Handle hash changes (back/forward buttons)
+  window.addEventListener('hashchange', function() {
+    const hash = window.location.hash.substring(1);
+    if (hash.startsWith('photo:')) {
+      handlePhotoHash();
+    } else if (hash === '' && modal.classList.contains('active')) {
+      closeModal();
+    }
+  });
+  
+  // Check for photo hash on page load
+  handlePhotoHash();
+});
+</script>
