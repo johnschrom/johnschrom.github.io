@@ -1,86 +1,22 @@
 <div class="news">
   {% if site.news != blank %}
     {% assign news = site.news | reverse %}
-    {% assign two_years_ago = 'now' | date: "%s" | minus: 63072000 %}
+    {% assign twelve_months_ago = 'now' | date: "%s" | minus: 31536000 %}
     {% assign recent_news = '' | split: '' %}
     
     {% for item in news %}
       {% assign item_timestamp = item.date | date: "%s" | plus: 0 %}
-      {% if item_timestamp >= two_years_ago %}
+      {% if item_timestamp >= twelve_months_ago %}
         {% assign recent_news = recent_news | push: item %}
       {% endif %}
     {% endfor %}
     
-    <!-- Collect available tags -->
-    {% assign available_tags = '' | split: '' %}
-    {% for item in recent_news %}
-      {% if item.tags %}
-        {% for tag in item.tags %}
-          {% unless available_tags contains tag %}
-            {% assign available_tags = available_tags | push: tag %}
-          {% endunless %}
-        {% endfor %}
-      {% endif %}
-    {% endfor %}
-    
-    <!-- Tag Filter Buttons (only show if we have news and tags) -->
-    {% if recent_news.size > 0 %}
-    <div class="news-filters">
-      <button class="news-filter-btn active" data-filter="all">All</button>
-      {% if available_tags contains 'research' %}
-        <button class="news-filter-btn" data-filter="research">Research</button>
-      {% endif %}
-      {% if available_tags contains 'portfolio' %}
-        <button class="news-filter-btn" data-filter="portfolio">Portfolio</button>
-      {% endif %}
-      {% if available_tags contains 'cv' %}
-        <button class="news-filter-btn" data-filter="cv">CV</button>
-      {% endif %}
-      {% if available_tags contains 'photography' %}
-        <button class="news-filter-btn" data-filter="photography">Photography</button>
-      {% endif %}
-      {% if available_tags contains 'adventures' %}
-        <button class="news-filter-btn" data-filter="adventures">Adventures</button>
-      {% endif %}
-    </div>
-    
-    <div class="news-divider"></div>
-    {% endif %}
-    
     <div class="news-list">
       {% for item in recent_news %}
-        {% assign item_tags = '' %}
-        {% if item.tags %}
-          {% for tag in item.tags %}
-            {% assign item_tags = item_tags | append: tag | append: ' ' %}
-          {% endfor %}
-        {% endif %}
-        
-        <article class="news-item {% if forloop.index > 3 %}hidden{% endif %}" data-tags="{{ item_tags | strip }}" data-index="{{ forloop.index }}">
+        <article class="news-item">
           <div class="news-content">
             <div class="news-meta">
               <time class="news-date">{{ item.date | date: '%b %d, %Y' }}</time>
-              {% if item.tags %}
-                <div class="news-tags">
-                  {% for tag in item.tags %}
-                    {% case tag %}
-                      {% when 'research' %}
-                        {% assign tag_url = '/research/' %}
-                      {% when 'portfolio' %}
-                        {% assign tag_url = '/portfolio/' %}
-                      {% when 'cv' %}
-                        {% assign tag_url = '/cv/' %}
-                      {% when 'photography' %}
-                        {% assign tag_url = '/photography/' %}
-                      {% when 'adventures' %}
-                        {% assign tag_url = '/adventures/' %}
-                      {% else %}
-                        {% assign tag_url = '#' %}
-                    {% endcase %}
-                    <a href="{{ tag_url }}" class="news-tag news-tag--{{ tag }}">{{ tag }}</a>
-                  {% endfor %}
-                </div>
-              {% endif %}
             </div>
             <div class="news-body">
               {% if item.inline %}
@@ -93,13 +29,6 @@
         </article>
       {% endfor %}
     </div>
-    
-    {% if recent_news.size > 3 %}
-      <div class="news-controls">
-        <button id="show-more-btn" class="show-more-btn">Show More Updates</button>
-        <button id="show-less-btn" class="show-more-btn hidden">Show Less</button>
-      </div>
-    {% endif %}
   {% else %}
     <p>No news so far...</p>
   {% endif %}
