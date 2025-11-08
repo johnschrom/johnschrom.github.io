@@ -31,15 +31,6 @@ layout: default
 
       <div class="bio-text-only">{{ content }}</div>
     </div>
-    
-    <!-- Recent Updates -->
-    {% if page.news and site.announcements.enabled %}
-    <div class="news-section-wrapper soft">
-      <h2>Recent Updates</h2>
-      {% include news.liquid %}
-    </div>
-    {% endif %}
-
 
     <!-- Selected papers -->
     {% if page.selected_papers %}
